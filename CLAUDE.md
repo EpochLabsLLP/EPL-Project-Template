@@ -1,0 +1,86 @@
+# {ProjectName} — Project Constitution
+# This file auto-loads into every Claude Code session. It is LAW, not guidance.
+# Last updated: {YYYY-MM-DD}
+
+## Identity
+{ProjectName} is {one-sentence description}. It is part of the {ecosystem/standalone} at Epoch Labs, LLP.
+
+## The Gold Rush Doctrine ({ProjectName})
+<!-- AGENT INSTRUCTION: When creating a new project from this template, replace {ProjectName}
+     throughout, and customize the "What this means for {ProjectName}" bullet below to reflect
+     the specific competitive advantage this project must demonstrate. The doctrine text above
+     the bullets is universal — do not modify it. -->
+
+We are in a modern Gold Rush. AI agentic coding has opened vast new opportunities for the idea guy — and we have a finite window to move fast, establish ourselves with exceptional product, and build a following before the window closes.
+
+The old rules are dead. You used to be able to release something and have plenty of time to iterate with little worry of a competitor catching up to your years of work. Now, if you launch a product that isn't significantly done to a high degree of quality, finish, and performance, you've handed your competitors a golden ticket to your vision. They take it, finish it completely with massive compute, and rob you of the opportunity.
+
+Therefore: We only go to market with products that flex a huge first-mover advantage. So much so that it dissuades others from even trying to follow.
+
+**What this means for {ProjectName}:**
+- No stubs. No placeholder features. No "coming soon" UI.
+- "What ships is finished, what isn't finished doesn't ship."
+- Ship complete features, not complete products. Quality over quantity.
+- {One sentence describing the specific quality bar for this project — e.g., "Every [output] must be better than or equal to the best existing alternative." Tailor to the project's domain after writing the PVD.}
+- The final few percent separates good from great — extraordinary completion matters.
+
+## Architecture — Load-Bearing Walls (DO NOT MODIFY)
+These decisions are FROZEN. If you believe one needs to change, STOP and escalate to Nathan.
+
+1. **{Decision 1}:** {Choice}. {Brief rationale}.
+2. **{Decision 2}:** {Choice}. {Brief rationale}.
+3. **{Decision 3}:** {Choice}. {Brief rationale}.
+
+## Anti-Patterns — NEVER DO THESE
+- **No stubs or fake implementations.** Every method must contain real logic. *Intent: Stubs ship as bugs. The Gold Rush Doctrine demands complete features.*
+- **No hardcoded API keys.** All API keys live server-side, never on-device. *Intent: Leaked keys are irrevocable security incidents.*
+- **No HTTP.** TLS everywhere. *Intent: Unencrypted traffic exposes user data.*
+- **No GPL dependencies.** Apache 2.0, MIT, BSD only. *Intent: GPL viral licensing would constrain Epoch Labs' commercial options.*
+- **No TODO/FIXME comments in shipped code.** *Intent: TODOs are unfulfilled promises. Finish or don't ship.*
+
+## Key Specs (Source of Truth)
+1. **This file (CLAUDE.md)** — Immutable constraints. Overrides everything below.
+2. **Mission Lock** — `/.claude/rules/mission-lock.md`. Current phase, scope, and change control. **Read before any implementation work.**
+3. **Gap Tracker** — `/Specs/gap_tracker.md`. Tiered work items. Respect scope guards.
+4. **PVD** — `/Specs/{ProjectName}_PVD.md`. What we build and why.
+5. **Engineering Spec** — `/Specs/{ProjectName}_Engineering_Spec.md`. How we build it.
+6. **Blueprint** — `/Specs/{ProjectName}_Blueprint.md`. Agent-executable build plan.
+7. **Testing Plans** — `/Testing/{ProjectName}_Testing_Plans.md`.
+
+All files in `/.claude/rules/` are authoritative project instructions. They auto-load and survive compaction.
+
+## Cross-Project Integration
+- **_shared/** — Junction to `_SharedCore`. Check before writing code that touches cross-project boundaries.
+
+## Quality Gates
+Before marking ANY module complete, pass all gates in `/.claude/rules/quality-gates.md`.
+
+## Claude Code Skills
+Invoke with `/skill-name <args>`.
+
+| Skill | Invocation | When to Use |
+|-------|-----------|-------------|
+| spec-lookup | `/spec-lookup <module>` | Before working on any module |
+| code-review | `/code-review <module\|file>` | After implementation, before marking complete |
+| alignment-check | `/alignment-check <module>` | Verify code matches spec with evidence |
+| dep-check | `/dep-check <dependency>` | Before adding any new dependency |
+| security-review | `/security-review <module>` | For modules handling sensitive data |
+| integration-logic | `/integration-logic <mod-a> <mod-b>` | Verify cross-module wiring |
+| pre-commit | `/pre-commit` | Before every git commit |
+| module-complete | `/module-complete <module>` | Before marking any module done |
+| frontend-design | `/frontend-design` | Building any web UI or frontend component |
+| webapp-testing | `/webapp-testing` | Testing web apps with Playwright |
+| skill-creator | `/skill-creator <name>` | Create a new project-specific skill |
+
+## Problem-Solving Protocol
+Follow the 4-tier protocol in `/.claude/rules/problem-solving.md`. Max 3 actions per tier before escalating.
+
+## Escalation Rules
+STOP and ask Nathan when:
+- A load-bearing wall decision seems wrong
+- A new dependency would be added
+- You discover a security concern
+- You're uncertain about a product decision not covered by specs
+
+## File Naming Conventions
+See `/.claude/rules/naming-conventions.md` for full conventions.

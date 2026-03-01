@@ -1,0 +1,11 @@
+{
+  "_comment": "MCP server configuration. Context7 is the recommended default for all projects.",
+  "_comment2": "Add project-specific servers below Context7 as needed (see Appendix B in Research Synthesis).",
+  "mcpServers": {
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    }
+  }
+}
