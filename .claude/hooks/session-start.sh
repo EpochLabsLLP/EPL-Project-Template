@@ -1,35 +1,26 @@
 #!/bin/bash
 # Hook: SessionStart -> startup
-# Fires on fresh session start. Outputs mission context to stdout,
+# Fires on fresh session start. Outputs project context to stdout,
 # which Claude Code injects as conversation context for the agent.
 #
 # This is the primary anti-drift mechanism. It forces every new session
-# to re-anchor to the project's mission, current phase, and next task.
+# to re-anchor to the project's status, traceability health, and next task.
 
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
-MISSION_LOCK="$PROJECT_DIR/.claude/rules/mission-lock.md"
+WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 SESSIONS_DIR="$PROJECT_DIR/Sessions"
 
 echo "[SESSION START — MISSION ANCHOR]"
 
-# --- Mission Lock ---
-if [ -f "$MISSION_LOCK" ]; then
+# --- Work Ledger (project status + traceability) ---
+if [ -f "$WORK_LEDGER" ]; then
   echo ""
-  echo "[MISSION LOCK]"
-  cat "$MISSION_LOCK"
-
-  # Extract one-line summary for quick reference
-  PHASE=$(grep -m1 "Current Phase:" "$MISSION_LOCK" 2>/dev/null | sed 's/.*Current Phase:\s*//' | sed 's/\*//g')
-  OBJECTIVE=$(grep -m1 "Phase Objective:" "$MISSION_LOCK" 2>/dev/null | sed 's/.*Phase Objective:\s*//' | sed 's/\*//g')
-  if [ -n "$PHASE" ]; then
-    echo ""
-    echo "ACTIVE PHASE: $PHASE"
-    [ -n "$OBJECTIVE" ] && echo "OBJECTIVE: $OBJECTIVE"
-  fi
+  echo "[WORK LEDGER]"
+  cat "$WORK_LEDGER"
 else
   echo ""
-  echo "[NO MISSION LOCK] Create .claude/rules/mission-lock.md before starting implementation work."
+  echo "[NO WORK LEDGER] Run \`/trace-check\` to generate Specs/Work_Ledger.md."
 fi
 
 # --- Gap Tracker ---

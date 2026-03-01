@@ -2,25 +2,29 @@
 # Hook: SessionStart -> resume
 # Fires when resuming a previous conversation (claude --continue / --resume).
 # Lighter than startup — you already have conversation context, so this just
-# re-anchors to the mission lock and shows current work items.
+# re-anchors to the Work Ledger and shows current work items.
 
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
-MISSION_LOCK="$PROJECT_DIR/.claude/rules/mission-lock.md"
+WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 
 echo "[SESSION RESUMED — RE-ANCHORING]"
 
-# --- Active Scope from Mission Lock ---
-if [ -f "$MISSION_LOCK" ]; then
-  PHASE=$(grep -m1 "Current Phase:" "$MISSION_LOCK" 2>/dev/null | sed 's/.*Current Phase:\s*//' | sed 's/\*//g')
-  [ -n "$PHASE" ] && echo "PHASE: $PHASE"
+# --- Work Ledger summary ---
+if [ -f "$WORK_LEDGER" ]; then
+  # Show status line and active Work Orders
+  STATUS=$(grep -m1 "^\*\*Status:\*\*" "$WORK_LEDGER" 2>/dev/null | sed 's/\*\*Status:\*\* //')
+  [ -n "$STATUS" ] && echo "LEDGER STATUS: $STATUS"
 
   echo ""
-  echo "[ACTIVE SCOPE]"
-  sed -n '/## Active Scope/,/## Explicit Out-of-Scope/p' "$MISSION_LOCK" 2>/dev/null | head -20
+  echo "[ACTIVE WORK ORDERS]"
+  sed -n '/## Active Work Orders/,/^## /p' "$WORK_LEDGER" 2>/dev/null | head -15
+
   echo ""
-  echo "[OUT OF SCOPE]"
-  sed -n '/## Explicit Out-of-Scope/,/## Success Criteria/p' "$MISSION_LOCK" 2>/dev/null | head -15
+  echo "[PROGRESS]"
+  sed -n '/## Progress/,/^$/p' "$WORK_LEDGER" 2>/dev/null | head -5
+else
+  echo "[NO WORK LEDGER] Run \`/trace-check\` to generate."
 fi
 
 # --- Gap Tracker: Just open items ---

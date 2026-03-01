@@ -2,13 +2,13 @@
 # Hook: SessionStart -> compact
 # Fires after context compaction (auto-compact at ~95% or manual /compact).
 # This is the MOST CRITICAL anti-drift hook. After compaction, Claude has lost
-# all in-progress nuance. This script re-injects the full mission context.
+# all in-progress nuance. This script re-injects the full project context.
 #
 # IMPORTANT: Everything output here becomes Claude's only knowledge of the
 # project state. Be thorough — compaction is where drift kills projects.
 
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
-MISSION_LOCK="$PROJECT_DIR/.claude/rules/mission-lock.md"
+WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 SESSIONS_DIR="$PROJECT_DIR/Sessions"
 
@@ -17,14 +17,14 @@ echo "Context was just compacted. Pre-compaction memory is UNRELIABLE."
 echo "You MUST re-read any files you were working on before making edits."
 echo "Do NOT rely on memory for: file contents, line numbers, variable names, partial implementations."
 
-# --- Full Mission Lock ---
-if [ -f "$MISSION_LOCK" ]; then
+# --- Full Work Ledger ---
+if [ -f "$WORK_LEDGER" ]; then
   echo ""
-  echo "[MISSION LOCK]"
-  cat "$MISSION_LOCK"
+  echo "[WORK LEDGER]"
+  cat "$WORK_LEDGER"
 else
   echo ""
-  echo "[NO MISSION LOCK] WARNING: Operating without scope control."
+  echo "[NO WORK LEDGER] Run \`/trace-check\` to generate. Operating without project status."
 fi
 
 # --- Full Gap Tracker ---

@@ -10,7 +10,7 @@ if [ -z "$COMMAND" ]; then
 fi
 
 if echo "$COMMAND" | grep -qE 'git\s+commit'; then
-  echo '{"systemMessage":"REMINDER: Run /pre-commit before committing to check for secrets, .gitignore violations, and file hygiene issues."}'
+  echo '{"systemMessage":"REMINDER: Run /pre-commit before committing to check for secrets, .gitignore violations, and file hygiene issues. Run /trace-check if spec files or Work Orders were modified."}'
   exit 0
 fi
 

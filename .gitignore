@@ -48,12 +48,10 @@ build/
 *.log
 
 # Template build artifacts (keep locally, don't push)
-Research/Anthropic_Skills_SDK_Research_v1.md
-Research/Claude_Code_Best_Practices_Research_v1.md
-Research/ProjectTemplate_Comprehensive_Research_Synthesis_v1.md
-Research/ProjectTemplate_Adoption_Report_for_Orchestration_Engine.md
-Sessions/2026-02-28_session_phase*.md
+Research/
+Sessions/
 Guides/advanced_patterns.md
+/_Archive/
 
 # Cross-project junction (created per-machine)
 _shared/
