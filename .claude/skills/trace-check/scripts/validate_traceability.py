@@ -440,6 +440,10 @@ def generate_work_ledger(project_dir, data, warnings, errors, tree_lines, readin
 
 
 def main():
+    # Force UTF-8 output on Windows (cp1252 can't handle tree-drawing characters)
+    if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+        sys.stdout.reconfigure(encoding="utf-8")
+
     if len(sys.argv) < 2:
         print("Usage: python validate_traceability.py <project_dir>")
         sys.exit(1)
