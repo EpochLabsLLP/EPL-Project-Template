@@ -1,0 +1,57 @@
+# Claude Code — per-machine settings (permissions, local overrides)
+.claude/settings.local.json
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+secrets/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Build artifacts
+dist/
+build/
+*.apk
+*.aab
+*.ipa
+
+# IDE
+.idea/
+*.iml
+.vscode/settings.json
+*.suo
+*.user
+
+# Compiled output
+*.class
+*.jar
+*.dll
+*.exe
+*.o
+*.so
+
+# Logs
+*.log
+
+# Template build artifacts (keep locally, don't push)
+Research/
+Sessions/
+Guides/advanced_patterns.md
+/_Archive/
+
+# Cross-project junction (created per-machine)
+_shared/
