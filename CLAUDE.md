@@ -55,11 +55,20 @@ Traceability: PVD-N → ES-N.M → BP-N.M.T → TP-N.M.T → WO-N.M.T-X. Run `/t
 
 All files in `/.claude/rules/` are authoritative project instructions. They auto-load and survive compaction.
 
+## Governance Heartbeat (Automated Enforcement)
+These run automatically — you do not invoke them:
+- **Code Gate:** Writing to code directories requires frozen specs AND an active Work Order (IN-PROGRESS). Enforced by `spec-gate.sh`.
+- **Commit Gate:** Every `git commit` validates traceability chains and scans for secrets. Broken chains or secrets = BLOCKED. Enforced by `commit-gate.sh`.
+- **Dependency Gate:** Package installs (`npm install <pkg>`, `pip install <pkg>`, etc.) require prior `/dep-check`. Enforced by `dep-gate.sh`.
+- **Session Heartbeat:** Work Ledger auto-refreshes via `validate_traceability.py` on every session start, resume, and compaction recovery.
+
+See `/.claude/rules/execution-protocol.md` for the full mandatory workflow.
+
 ## Cross-Project Integration
 - **_shared/** — Junction to `_SharedCore`. Check before writing code that touches cross-project boundaries.
 
 ## Quality Gates
-Before marking ANY module complete, pass all gates in `/.claude/rules/quality-gates.md`.
+Before marking ANY module complete, run `/code-review` then `/module-complete`. All gates in `/.claude/rules/quality-gates.md` must pass.
 
 ## Claude Code Skills
 Invoke with `/skill-name <args>`.
@@ -78,6 +87,9 @@ Invoke with `/skill-name <args>`.
 | webapp-testing | `/webapp-testing` | Testing web apps with Playwright |
 | trace-check | `/trace-check` | After creating/updating any spec or Work Order |
 | skill-creator | `/skill-creator <name>` | Create a new project-specific skill |
+| init-doc | `/init-doc <type> [abbreviation]` | Creating any new spec document from template |
+| template-sync | `/template-sync [--apply]` | Syncing template updates to this project |
+| governance-health | `/governance-health` | Validating governance system integrity |
 
 ## Problem-Solving Protocol
 Follow the 4-tier protocol in `/.claude/rules/problem-solving.md`. Max 3 actions per tier before escalating.

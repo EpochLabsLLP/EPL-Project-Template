@@ -11,11 +11,28 @@ PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 SESSIONS_DIR="$PROJECT_DIR/Sessions"
+TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
 
 echo "[COMPACTION RECOVERY — FULL CONTEXT RELOAD]"
 echo "Context was just compacted. Pre-compaction memory is UNRELIABLE."
 echo "You MUST re-read any files you were working on before making edits."
 echo "Do NOT rely on memory for: file contents, line numbers, variable names, partial implementations."
+
+# --- Auto-refresh Work Ledger via trace-check ---
+if [ -f "$TRACE_SCRIPT" ]; then
+  TRACE_OUTPUT=$(PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
+  TRACE_EXIT=$?
+  # Regenerate the full ledger silently
+  PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  echo ""
+  if [ $TRACE_EXIT -eq 0 ]; then
+    echo "[$TRACE_OUTPUT]"
+  elif [ $TRACE_EXIT -eq 1 ]; then
+    echo "[$TRACE_OUTPUT — ERRORS DETECTED, run /trace-check for details]"
+  else
+    echo "[Traceability check failed — run /trace-check manually]"
+  fi
+fi
 
 # --- Full Work Ledger ---
 if [ -f "$WORK_LEDGER" ]; then
@@ -24,7 +41,7 @@ if [ -f "$WORK_LEDGER" ]; then
   cat "$WORK_LEDGER"
 else
   echo ""
-  echo "[NO WORK LEDGER] Run \`/trace-check\` to generate. Operating without project status."
+  echo "[NO WORK LEDGER] No specs found yet. Operating without project status."
 fi
 
 # --- Full Gap Tracker ---

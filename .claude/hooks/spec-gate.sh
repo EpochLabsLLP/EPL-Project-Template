@@ -1,9 +1,9 @@
 #!/bin/bash
 # Hook: PreToolUse -> Edit|Write
-# Blocks code file writes when required frozen specs are missing.
+# CODE GATE: Blocks code file writes when governance requirements are not met.
 #
-# This is the automated enforcement of the SDD principle:
-# "No code before frozen specs."
+# This is the automated enforcement of SDD principles:
+# "No code before frozen specs" and "No code without an active Work Order."
 #
 # Checks:
 # 1. Is the target file in a code directory? (If not, always ALLOW)
@@ -11,8 +11,9 @@
 #    Path A: PVD (FROZEN)
 #    Path B: Product Brief (FROZEN) AND PRD (FROZEN)
 #    Plus: Engineering Spec (FROZEN), Blueprint (FROZEN), Testing Plans (FROZEN)
-# 3. Missing/unfrozen → exit 2 (BLOCK)
-# 4. All present and frozen → exit 0 (ALLOW)
+# 3. Is there an active Work Order (status: IN-PROGRESS)?
+# 4. Missing/unfrozen/no active WO → exit 2 (BLOCK)
+# 5. All present, frozen, and active WO → exit 0 (ALLOW)
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
@@ -117,14 +118,41 @@ for f in "$PROJECT_DIR"/Testing/*Testing_Plans*; do
 done
 [ "$HAS_TP" = false ] && MISSING+=("Testing Plans")
 
+# --- Work Order check ---
+# Require at least one Work Order with status IN-PROGRESS before code writes.
+# This enforces the SDD execution protocol: specs → WO → code.
+HAS_ACTIVE_WO=false
+
+if [ -d "$PROJECT_DIR/WorkOrders" ]; then
+  for f in "$PROJECT_DIR"/WorkOrders/*.md; do
+    [ -f "$f" ] || continue
+    # Skip templates and archive
+    case "$f" in
+      *TEMPLATE_*|*_Archive*) continue ;;
+    esac
+    # Check first 20 lines for IN-PROGRESS status
+    if head -20 "$f" | grep -qE '\*\*Status\*\*.*IN-PROGRESS|Status.*IN-PROGRESS'; then
+      HAS_ACTIVE_WO=true
+      break
+    fi
+  done
+fi
+
+if [ "$HAS_ACTIVE_WO" = false ]; then
+  MISSING+=("Active Work Order (create with /init-doc wo, set status to IN-PROGRESS)")
+fi
+
 # --- Decision ---
 if [ ${#MISSING[@]} -gt 0 ]; then
   MISSING_LIST=$(printf ", %s" "${MISSING[@]}")
   MISSING_LIST=${MISSING_LIST:2}  # Remove leading ", "
-  echo "SPEC GATE BLOCKED: Cannot write to code files until required specs are frozen."
-  echo "Missing/unfrozen: $MISSING_LIST"
-  echo "Freeze these specs before writing code, or write to a non-code directory."
+  echo "CODE GATE BLOCKED: Cannot write to code files."
+  echo "Missing: $MISSING_LIST"
+  echo ""
+  echo "Required before writing code:"
+  echo "  1. Freeze all required specs (PVD/Brief+PRD, Engineering Spec, Blueprint, Testing Plans)"
+  echo "  2. Create a Work Order (/init-doc wo WO-N.M.T-X) and set status to IN-PROGRESS"
   exit 2  # BLOCK
 fi
 
-exit 0  # All specs frozen, allow
+exit 0  # All specs frozen + active WO, allow

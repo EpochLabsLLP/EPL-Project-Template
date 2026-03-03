@@ -1,4 +1,14 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(python -c \":*)",
+      "Bash(where py)",
+      "Bash(\"C:\\\\Users\\\\Nathan\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python314\\\\python.exe\" -c \":*)",
+      "Bash(\"C:/Users/Nathan/AppData/Local/Programs/Python/Python314/python.exe\" -c \":*)",
+      "Bash(\"C:/Users/Nathan/AppData/Local/Programs/Python/Python314/python.exe\":*)",
+      "Bash(PYTHONIOENCODING=utf-8 \"C:/Users/Nathan/AppData/Local/Programs/Python/Python314/python.exe\" -c \":*)"
+    ]
+  },
   "hooks": {
     "SessionStart": [
       {
@@ -7,7 +17,7 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh\"",
-            "timeout": 10
+            "timeout": 15
           }
         ]
       },
@@ -17,7 +27,7 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-resume.sh\"",
-            "timeout": 10
+            "timeout": 15
           }
         ]
       },
@@ -27,7 +37,7 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-compact.sh\"",
-            "timeout": 10
+            "timeout": 15
           }
         ]
       }
@@ -43,7 +53,12 @@
           },
           {
             "type": "command",
-            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/pre-commit-reminder.sh\"",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/commit-gate.sh\"",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/dep-gate.sh\"",
             "timeout": 5
           }
         ]
@@ -59,7 +74,17 @@
           {
             "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/spec-gate.sh\"",
-            "timeout": 10
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/template-guard.sh\"",
+            "timeout": 5
           }
         ]
       }

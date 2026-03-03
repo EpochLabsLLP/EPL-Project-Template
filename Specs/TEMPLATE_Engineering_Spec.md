@@ -51,6 +51,7 @@
 | {Database} | {choice} | {why} |
 | {Infrastructure} | {choice} | {why} |
 | {Build/CI} | {choice} | {why} |
+| {Testing} | {choice, e.g., pytest, Jest, JUnit} | {why} |
 
 ---
 

@@ -7,8 +7,19 @@
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
+TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
 
 echo "[SESSION RESUMED — RE-ANCHORING]"
+
+# --- Auto-refresh Work Ledger via trace-check ---
+if [ -f "$TRACE_SCRIPT" ]; then
+  TRACE_OUTPUT=$(PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
+  TRACE_EXIT=$?
+  # Regenerate the full ledger silently
+  PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  [ $TRACE_EXIT -eq 0 ] && echo "[$TRACE_OUTPUT]"
+  [ $TRACE_EXIT -eq 1 ] && echo "[$TRACE_OUTPUT — run /trace-check for details]"
+fi
 
 # --- Work Ledger summary ---
 if [ -f "$WORK_LEDGER" ]; then
@@ -24,7 +35,7 @@ if [ -f "$WORK_LEDGER" ]; then
   echo "[PROGRESS]"
   sed -n '/## Progress/,/^$/p' "$WORK_LEDGER" 2>/dev/null | head -5
 else
-  echo "[NO WORK LEDGER] Run \`/trace-check\` to generate."
+  echo "[NO WORK LEDGER] No specs found yet."
 fi
 
 # --- Gap Tracker: Just open items ---

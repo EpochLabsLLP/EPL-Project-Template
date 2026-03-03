@@ -10,17 +10,35 @@ PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 SESSIONS_DIR="$PROJECT_DIR/Sessions"
+TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
 
 echo "[SESSION START — MISSION ANCHOR]"
+
+# --- Auto-refresh Work Ledger via trace-check ---
+TRACE_STATUS=""
+if [ -f "$TRACE_SCRIPT" ]; then
+  TRACE_OUTPUT=$(PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
+  TRACE_EXIT=$?
+  # Regenerate the full ledger silently
+  PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  if [ $TRACE_EXIT -eq 0 ]; then
+    TRACE_STATUS="$TRACE_OUTPUT"
+  elif [ $TRACE_EXIT -eq 1 ]; then
+    TRACE_STATUS="$TRACE_OUTPUT — run /trace-check for details"
+  else
+    TRACE_STATUS="Traceability check failed (non-blocking)"
+  fi
+fi
 
 # --- Work Ledger (project status + traceability) ---
 if [ -f "$WORK_LEDGER" ]; then
   echo ""
+  [ -n "$TRACE_STATUS" ] && echo "[$TRACE_STATUS]"
   echo "[WORK LEDGER]"
   cat "$WORK_LEDGER"
 else
   echo ""
-  echo "[NO WORK LEDGER] Run \`/trace-check\` to generate Specs/Work_Ledger.md."
+  echo "[NO WORK LEDGER] No specs found yet. Start with: /init-doc pvd"
 fi
 
 # --- Gap Tracker ---
@@ -57,6 +75,30 @@ if [ -d "$SESSIONS_DIR" ]; then
     echo "[LAST SESSION: $(basename "$LATEST")]"
     tail -20 "$LATEST"
   fi
+fi
+
+# --- Template Awareness (only when something is missing) ---
+SPECS_DIR="$PROJECT_DIR/Specs"
+HAS_PRODUCT_SPEC=false
+for f in "$SPECS_DIR"/*PVD* "$SPECS_DIR"/*PRD* "$SPECS_DIR"/*Product_Brief* ; do
+  if [ -f "$f" ]; then
+    BNAME=$(basename "$f")
+    if ! echo "$BNAME" | grep -q "^TEMPLATE_"; then
+      HAS_PRODUCT_SPEC=true
+      break
+    fi
+  fi
+done
+
+if [ "$HAS_PRODUCT_SPEC" = false ]; then
+  echo ""
+  echo "[TEMPLATE AWARENESS] No product spec found. Start with: /init-doc pvd"
+  echo "Available types: pvd, prd, brief, es, ux, bp, tp, wo, dr"
+fi
+
+if [ ! -f "$PROJECT_DIR/.claude/settings.local.json" ]; then
+  echo ""
+  echo "[WARNING] settings.local.json missing. Copy from .claude/settings.local.json.example for optimized permissions."
 fi
 
 echo ""

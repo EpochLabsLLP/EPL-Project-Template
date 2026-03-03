@@ -4,16 +4,25 @@ Epoch Labs — SDD Traceability Validator
 Parses spec files for traceability IDs, validates chains, and generates the Work Ledger.
 
 Usage:
-    python validate_traceability.py <project_dir>
+    python validate_traceability.py <project_dir>             # Full validation + ledger generation
+    python validate_traceability.py <project_dir> --quick     # Quick validation, one-line status, no ledger
+    python validate_traceability.py <project_dir> --check-active-wo  # Check for IN-PROGRESS Work Order
+
+Exit codes:
+    0 = CLEAN (no errors; warnings are OK)
+    1 = ERRORS present (broken chains, orphans) or no active WO (--check-active-wo)
+    2 = Script error (bad input, crash)
 
 Output:
-    - Writes Specs/Work_Ledger.md (persistent project status)
-    - Prints summary to stdout (for skill display)
+    - Default: Writes Specs/Work_Ledger.md (persistent project status) + prints summary
+    - --quick: Prints one-line status only (for hook use, <2s target)
+    - --check-active-wo: Prints active WO IDs or "NO_ACTIVE_WO" (for hook use, <1s target)
 """
 
 import re
 import sys
 import os
+import argparse
 from datetime import datetime
 from pathlib import Path
 
@@ -439,20 +448,61 @@ def generate_work_ledger(project_dir, data, warnings, errors, tree_lines, readin
     return lines, status
 
 
-def main():
-    # Force UTF-8 output on Windows (cp1252 can't handle tree-drawing characters)
-    if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
-        sys.stdout.reconfigure(encoding="utf-8")
+def run_check_active_wo(project_dir):
+    """Quick check: is any Work Order IN-PROGRESS? Exit 0 if yes, 1 if no."""
+    wo_dir = project_dir / "WorkOrders"
+    if not wo_dir.exists():
+        print("NO_ACTIVE_WO: WorkOrders/ directory not found")
+        return 1
 
-    if len(sys.argv) < 2:
-        print("Usage: python validate_traceability.py <project_dir>")
-        sys.exit(1)
+    wo_files = [f for f in wo_dir.glob("*.md")
+                if not f.name.startswith("TEMPLATE_") and "_Archive" not in str(f)]
 
-    project_dir = Path(sys.argv[1]).resolve()
-    if not project_dir.exists():
-        print(f"Error: Directory not found: {project_dir}")
-        sys.exit(1)
+    if not wo_files:
+        print("NO_ACTIVE_WO: No Work Order files found")
+        return 1
 
+    active = []
+    for f in wo_files:
+        content = f.read_text(encoding="utf-8", errors="replace")
+        status = get_wo_status(content)
+        if status == "IN-PROGRESS":
+            # Extract WO ID from filename or content
+            m = re.search(r'WO-\d+\.\d+\.\d+-[A-Z]', f.name) or re.search(r'WO-\d+\.\d+\.\d+-[A-Z]', content)
+            wo_id = m.group(0) if m else f.name
+            active.append(wo_id)
+
+    if active:
+        print(f"ACTIVE_WO: {', '.join(sorted(active))}")
+        return 0
+    else:
+        print("NO_ACTIVE_WO: No Work Order has status IN-PROGRESS")
+        return 1
+
+
+def run_quick(project_dir):
+    """Quick validation: validate chains, print one-line status, no ledger generation."""
+    data = parse_specs(project_dir)
+    warnings, errors = validate_chains(data)
+
+    error_count = len(errors)
+    warning_count = len(warnings)
+
+    if error_count == 0 and warning_count == 0:
+        print("TRACEABILITY: CLEAN")
+        return 0
+    elif error_count == 0:
+        print(f"TRACEABILITY: {warning_count} warning(s)")
+        return 0  # Warnings don't block
+    else:
+        print(f"TRACEABILITY: {error_count} error(s), {warning_count} warning(s)")
+        for e in errors:
+            print(f"  ERROR: {e}")
+        return 1  # Errors block
+
+
+def run_full(project_dir):
+    """Full validation + ledger generation (default behavior)."""
     # Parse all specs
     data = parse_specs(project_dir)
 
@@ -516,6 +566,46 @@ def main():
 
     print()
     print(f"Work Ledger written to: Specs/Work_Ledger.md")
+
+    # Return exit code based on errors
+    return 1 if errors else 0
+
+
+def main():
+    # Force UTF-8 output on Windows (cp1252 can't handle tree-drawing characters)
+    if sys.stdout.encoding and sys.stdout.encoding.lower() != "utf-8":
+        sys.stdout.reconfigure(encoding="utf-8")
+
+    parser = argparse.ArgumentParser(description="SDD Traceability Validator")
+    parser.add_argument("project_dir", help="Path to project directory")
+    parser.add_argument("--quick", action="store_true",
+                        help="Quick validation: one-line status, no ledger generation")
+    parser.add_argument("--check-active-wo", action="store_true",
+                        help="Check for IN-PROGRESS Work Order (exit 0=found, 1=not found)")
+
+    try:
+        args = parser.parse_args()
+    except SystemExit as e:
+        # argparse calls sys.exit on error; remap to exit code 2
+        sys.exit(2)
+
+    project_dir = Path(args.project_dir).resolve()
+    if not project_dir.exists():
+        print(f"Error: Directory not found: {project_dir}")
+        sys.exit(2)
+
+    try:
+        if args.check_active_wo:
+            exit_code = run_check_active_wo(project_dir)
+        elif args.quick:
+            exit_code = run_quick(project_dir)
+        else:
+            exit_code = run_full(project_dir)
+    except Exception as e:
+        print(f"CRASH: {e}")
+        sys.exit(2)
+
+    sys.exit(exit_code)
 
 
 if __name__ == "__main__":
