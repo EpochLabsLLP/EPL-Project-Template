@@ -74,10 +74,13 @@ These are not auto-enforced by hooks but are REQUIRED by project governance. Ski
 9. **Update WO status** — Set to VALIDATION (if awaiting review) or DONE (if all gates pass).
 10. **Run `/trace-check`** — Verify traceability chains are intact after changes. (Also runs automatically at session start and before commits.)
 
-### Before Commit
+### Commit After Each Work Order
 
-11. **Commit-gate runs automatically** — Validates traceability and scans for secrets.
-12. **Run `/pre-commit`** for full hygiene — The commit-gate covers traceability and secrets; `/pre-commit` also checks TODOs, debug statements, file hygiene, build, and tests.
+11. **When a WO reaches DONE, commit and push immediately.** Each WO is a self-contained unit of traceable work and a natural commit boundary. Do not batch multiple completed WOs into a single commit.
+12. **Commit message must reference the WO ID.** Format: `WO-N.M.T-X: <description of what was implemented>`. This ties the git history to the traceability chain.
+13. **Stage only files related to the WO.** Include the module source, tests, the WO file itself, and the updated Work Ledger. Do not stage unrelated changes.
+14. **Commit-gate runs automatically** — Validates traceability and scans for secrets.
+15. **Run `/pre-commit`** for full hygiene — The commit-gate covers traceability and secrets; `/pre-commit` also checks TODOs, debug statements, file hygiene, build, and tests.
 
 ## Traceability is Continuous
 
