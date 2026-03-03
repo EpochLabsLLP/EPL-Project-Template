@@ -120,3 +120,13 @@ WO-{N.M.T}-{X}  →  BP-{N.M.T}  →  ES-{N.M}  →  PVD-{N}
 
 ### If DONE:
 - **Archive to:** `WorkOrders/_Archive/WO-{N.M.T}-{X}.md`
+
+---
+
+## 7. Commit
+
+<!-- Completed when WO reaches DONE. Each WO = one commit. -->
+
+- [ ] All WO files staged (source, tests, WO, Work Ledger)
+- [ ] Commit message: `WO-{N.M.T}-{X}: {description}`
+- [ ] Pushed to remote
