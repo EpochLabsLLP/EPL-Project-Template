@@ -47,11 +47,5 @@ build/
 # Logs
 *.log
 
-# Template build artifacts (keep locally, don't push)
-Research/
-Sessions/
-Guides/advanced_patterns.md
-/_Archive/
-
 # Cross-project junction (created per-machine)
 _shared/
