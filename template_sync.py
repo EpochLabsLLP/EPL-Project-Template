@@ -353,6 +353,10 @@ def print_report(report, project_version, template_version, apply_mode=False,
     print(f"=== TEMPLATE SYNC REPORT ({mode}) ===")
     print(f"Project version: {project_version}")
     print(f"Template version: {template_version}")
+
+    if project_version != "0.0.0" and project_version != template_version:
+        print(f"\n  UPGRADE: {project_version} -> {template_version} — See CHANGELOG.md for details.")
+
     print()
 
     # CLAUDE.md structure version check
