@@ -1,7 +1,7 @@
 ---
 name: trace-check
 description: Validate traceability chains, Work Order status, and spec readiness. Generates the Work Ledger.
-user_invocable: true
+user-invokable: true
 ---
 
 # trace-check
