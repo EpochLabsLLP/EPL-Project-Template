@@ -1,7 +1,89 @@
 {
-  "template_version": "2.2.0",
+  "template_version": "2.3.0",
   "template_repo": "Epoch Labs Project Template/_ProjectTemplate",
   "description": "Epoch Labs project template manifest. Declares file ownership for template sync.",
+  "claude_md_structure_version": "2.2.0",
+  "hook_registrations": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh\"",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-resume.sh\"",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-compact.sh\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-dangerous.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/commit-gate.sh\"",
+            "timeout": 15
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/dep-gate.sh\"",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/protect-frozen-files.sh\"",
+            "timeout": 5
+          },
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/spec-gate.sh\"",
+            "timeout": 15
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/hooks/template-guard.sh\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
   "categories": {
     "infrastructure": {
       "description": "Template-owned. Always overwritten on sync. Do not customize in projects.",
@@ -34,6 +116,7 @@
         ".claude/skills/security-review/SKILL.md",
         ".claude/skills/skill-creator/SKILL.md",
         ".claude/skills/spec-lookup/SKILL.md",
+        ".claude/skills/template-migrate/SKILL.md",
         ".claude/skills/template-sync/SKILL.md",
         ".claude/skills/trace-check/SKILL.md",
         ".claude/skills/trace-check/scripts/validate_traceability.py",
@@ -66,8 +149,13 @@
       "description": "Created once from template. Project-owned after creation. Never overwritten on sync.",
       "files": [
         "CLAUDE.md",
-        ".claude/settings.json",
         "README.md"
+      ]
+    },
+    "managed_scaffolding": {
+      "description": "Project-owned but with template-managed sections. Hooks block is merged; permissions block is untouched.",
+      "files": [
+        ".claude/settings.json"
       ]
     },
     "generated": {

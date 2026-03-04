@@ -1,8 +1,8 @@
 ---
 name: template-sync
 description: Compare the current project against the template repo and sync updates. Use to propagate template improvements to active projects without clobbering project-specific customizations.
-argument-hint: [--apply]
-user_invocable: true
+argument-hint: "--apply"
+user-invokable: true
 ---
 
 # template-sync
@@ -74,9 +74,34 @@ Show the sync report to Nathan. Key sections:
 If `--apply` was NOT passed and actions are needed, ask:
 "The template has updates. Run `/template-sync --apply` to apply them?"
 
+## CLAUDE.md Version Check
+
+The sync engine checks the project's CLAUDE.md for a `<!-- claude_md_version: X.Y.Z -->` marker. If the marker is missing or outdated, the report will show a warning:
+
+```
+CLAUDE.MD STRUCTURE OUTDATED:
+  Project CLAUDE.md: unversioned/legacy
+  Template expects:  2.2.0
+  Run /template-migrate to update CLAUDE.md structure.
+```
+
+**If you see this warning:** Do NOT attempt to manually update CLAUDE.md. Instead, recommend Nathan run `/template-migrate` for a guided, safe migration.
+
+## Settings.json Hook Merge
+
+The sync engine merges template hook registrations into the project's `settings.json` without touching the `permissions` block. The report shows what hooks would be added or updated:
+
+```
+SETTINGS.JSON HOOK MERGE (1 change(s)):
+  + PreToolUse/Bash: adding new-hook.sh
+```
+
+This is automatic — hook registrations are merged on `--apply` alongside file updates.
+
 ## Safety
 
 - **Never deletes files** — only creates or overwrites
-- **Never modifies scaffolding** — CLAUDE.md, settings.json are always skipped
+- **Never modifies scaffolding** — CLAUDE.md and README.md are always skipped
+- **Smart-merges settings.json** — hooks block is merged, permissions block is untouched
 - **Always backs up** — overwritten files saved to `.template_backup/{timestamp}/`
 - **Dry-run by default** — must explicitly pass `--apply` to make changes

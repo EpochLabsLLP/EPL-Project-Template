@@ -1,5 +1,6 @@
 # {ProjectName} — Project Constitution
 # This file auto-loads into every Claude Code session. It is LAW, not guidance.
+<!-- claude_md_version: 2.2.0 -->
 # Last updated: {YYYY-MM-DD}
 
 ## Identity
@@ -89,6 +90,7 @@ Invoke with `/skill-name <args>`.
 | skill-creator | `/skill-creator <name>` | Create a new project-specific skill |
 | init-doc | `/init-doc <type> [abbreviation]` | Creating any new spec document from template |
 | template-sync | `/template-sync [--apply]` | Syncing template updates to this project |
+| template-migrate | `/template-migrate [--dry-run]` | Migrating CLAUDE.md structure for legacy/major upgrades |
 | governance-health | `/governance-health` | Validating governance system integrity |
 
 ## Problem-Solving Protocol

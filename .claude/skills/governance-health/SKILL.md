@@ -1,7 +1,7 @@
 ---
 name: governance-health
 description: Validate that the governance system (hooks, rules, skills, scripts) is intact and functional. Use to diagnose governance failures, verify setup after template sync, or audit a project's template compliance.
-user_invocable: true
+user-invokable: true
 ---
 
 # governance-health
@@ -81,22 +81,36 @@ If template repo path is known (from `/template-sync` or ask Nathan):
 - Compare infrastructure file hashes between template and project
 - Report: `[PASS]` if identical, `[WARN]` with list of drifted files
 
+### Check 10: CLAUDE.md Version Marker
+
+- Scan the first 10 lines of `CLAUDE.md` for `<!-- claude_md_version: X.Y.Z -->`
+- If `TEMPLATE_MANIFEST.json` has `claude_md_structure_version`, compare the two
+- Report: `[PASS]` if marker present and matches, `[WARN]` if outdated or missing (recommend `/template-migrate`)
+
+### Check 11: Settings.json Hook Registrations
+
+- Load `hook_registrations` from `TEMPLATE_MANIFEST.json`
+- Compare against actual hooks registered in `.claude/settings.json`
+- Report: `[PASS]` if all template hooks are registered, `[WARN]` with list of missing registrations (recommend `/template-sync --apply`)
+
 ## Output Format
 
 ```
 === GOVERNANCE HEALTH CHECK ===
 
-[PASS] Hook files: All 9 hooks present
+[PASS] Hook files: All 10 hooks present
 [PASS] parse_hook_input.py: Functional (Python 3.14)
 [PASS] Python: 3.14.0
-[PASS] Skills: 15/15 SKILL.md files present
+[PASS] Skills: 16/16 SKILL.md files present
 [PASS] Rules: 6/6 rule files present
-[WARN] Manifest: 2 infrastructure files missing (.claude/skills/new-skill/SKILL.md)
+[PASS] Manifest: All infrastructure files present
 [WARN] settings.local.json: Missing — copy from .claude/settings.local.json.example
-[PASS] Template version: 2.2.0
+[PASS] Template version: 2.3.0
 [PASS] Governance integrity: All files match template
+[PASS] CLAUDE.md version: 2.2.0 (current)
+[PASS] Hook registrations: All template hooks registered
 
-RESULT: 7 PASS, 2 WARN, 0 FAIL
+RESULT: 9 PASS, 1 WARN, 0 FAIL
 ```
 
 Keep the output concise. Do not dump file contents — just report status.
