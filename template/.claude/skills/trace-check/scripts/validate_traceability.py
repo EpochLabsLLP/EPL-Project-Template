@@ -59,7 +59,7 @@ def check_frozen(content):
 
 def get_wo_status(content):
     """Extract Work Order status from content."""
-    match = re.search(r'\*\*Status\*\*\s*\|\s*(PENDING|IN-PROGRESS|VALIDATION|DONE|FAILED)', content)
+    match = re.search(r'\*\*Status:?\*\*[\s|]*\s*(PENDING|IN-PROGRESS|VALIDATION|DONE|FAILED)', content)
     if match:
         return match.group(1)
     return "UNKNOWN"
@@ -146,8 +146,8 @@ def parse_specs(project_dir):
             mirror_bp = f"BP-{parts[0]}.{parts[1]}.{parts[2]}"
             data["tp_ids"][tp_id] = {"file": rel_path, "mirror_bp": mirror_bp, "title": m.group(2).strip()}
 
-        # WO IDs: WO-N.M.T-X (header format)
-        for m in re.finditer(r'#\s+Work Order:\s+WO-(\d+\.\d+\.\d+)-([A-Z])', content):
+        # WO IDs: WO-N.M.T-X (header format — matches both "# Work Order: WO-..." and "# WO-...")
+        for m in re.finditer(r'#\s+(?:Work Order:\s+)?WO-(\d+\.\d+\.\d+)-([A-Z])', content):
             wo_id = f"WO-{m.group(1)}-{m.group(2)}"
             parts = m.group(1).split(".")
             parent_bp = f"BP-{parts[0]}.{parts[1]}.{parts[2]}"
