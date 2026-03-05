@@ -8,6 +8,14 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.3.2] - 2026-03-04
+
+### Fixed
+- **validate_traceability.py — Status regex**: Now matches both `**Status** | DONE` (table format) and `**Status:** DONE` (colon format). Previously only matched table format, causing WOs with colon-style frontmatter to show as UNKNOWN.
+- **validate_traceability.py — WO header regex**: Now matches both `# Work Order: WO-N.M.T-X` and `# WO-N.M.T-X: Title` header formats. Previously only matched the long-form header, causing short-form WOs to be invisible to the validator.
+
+---
+
 ## [2.3.1] - 2026-03-04
 
 ### Added
