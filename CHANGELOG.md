@@ -13,6 +13,9 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 ### Fixed
 - **commit-gate.sh — .env false positive**: `.env.*.example` template files (placeholder values, no secrets) are no longer blocked. Added `grep -v '\.example$'` exclusion to the `.env` file check.
 
+### Changed
+- **validate_traceability.py — Orphan ES/UX severity**: Orphaned ES and UX modules (referencing a non-existent PVD parent) are now warnings instead of errors. Infrastructure modules (e.g., ES-0.x) commonly don't map 1:1 to a PVD feature. Orphaned BP and WO modules remain errors (those break downstream chains).
+
 ---
 
 ## [2.3.2] - 2026-03-04

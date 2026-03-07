@@ -172,17 +172,17 @@ def validate_chains(data):
     warnings = []
     errors = []
 
-    # ES -> PVD validation
+    # ES -> PVD validation (warning, not error — infrastructure modules may not map to a PVD feature)
     for es_id, info in sorted(data["es_ids"].items()):
         parent = info["parent_pvd"]
         if parent not in data["pvd_ids"]:
-            errors.append(f"ORPHAN: {es_id} references {parent} but {parent} not found in PVD")
+            warnings.append(f"ORPHAN: {es_id} references {parent} but {parent} not found in PVD")
 
-    # UX -> PVD validation
+    # UX -> PVD validation (warning — same reasoning as ES)
     for ux_id, info in sorted(data["ux_ids"].items()):
         parent = info["parent_pvd"]
         if parent not in data["pvd_ids"]:
-            errors.append(f"ORPHAN: {ux_id} references {parent} but {parent} not found in PVD")
+            warnings.append(f"ORPHAN: {ux_id} references {parent} but {parent} not found in PVD")
 
     # BP -> ES validation
     for bp_id, info in sorted(data["bp_ids"].items()):
