@@ -67,7 +67,7 @@ if [ -n "$STAGED_DIFF" ]; then
   fi
 
   # Check for .env files being committed
-  ENV_FILES=$(git -C "$PROJECT_DIR" diff --cached --name-only 2>/dev/null | grep -E '\.env($|\.)')
+  ENV_FILES=$(git -C "$PROJECT_DIR" diff --cached --name-only 2>/dev/null | grep -E '\.env($|\.)' | grep -v '\.example$')
   if [ -n "$ENV_FILES" ]; then
     BLOCKED=true
     BLOCK_REASONS="${BLOCK_REASONS}\n.ENV FILES staged for commit:\n$ENV_FILES\n\nAdd .env to .gitignore and unstage these files."
