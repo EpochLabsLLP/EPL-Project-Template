@@ -8,6 +8,13 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.3.4] - 2026-03-08
+
+### Added
+- **validate_traceability.py — Gap Tracker (GT) support**: Work Orders with `**Blueprint:** GT` in their body are recognized as Gap Tracker WOs. These skip BP orphan validation, display "Gap Tracker (no BP parent)" in the Work Ledger, and are excluded from Blueprint progress stats. Fixes false ORPHAN errors on WOs that intentionally don't map to a Blueprint task.
+
+---
+
 ## [2.3.3] - 2026-03-06
 
 ### Fixed

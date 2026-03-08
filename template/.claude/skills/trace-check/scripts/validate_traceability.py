@@ -150,7 +150,11 @@ def parse_specs(project_dir):
         for m in re.finditer(r'#\s+(?:Work Order:\s+)?WO-(\d+\.\d+\.\d+)-([A-Z])', content):
             wo_id = f"WO-{m.group(1)}-{m.group(2)}"
             parts = m.group(1).split(".")
-            parent_bp = f"BP-{parts[0]}.{parts[1]}.{parts[2]}"
+            # Gap Tracker WOs: Blueprint field = GT → no BP parent
+            if re.search(r'\*\*Blueprint:?\*\*[\s|]*\s*GT\b', content):
+                parent_bp = "GT"
+            else:
+                parent_bp = f"BP-{parts[0]}.{parts[1]}.{parts[2]}"
             status = get_wo_status(content)
             data["wo_ids"][wo_id] = {"file": rel_path, "parent_bp": parent_bp, "status": status}
 
@@ -196,9 +200,11 @@ def validate_chains(data):
         if tp_id not in data["tp_ids"]:
             warnings.append(f"MISSING MIRROR: {bp_id} has no corresponding {tp_id} in Testing Plans")
 
-    # WO -> BP validation
+    # WO -> BP validation (skip Gap Tracker WOs — they intentionally have no BP parent)
     for wo_id, info in sorted(data["wo_ids"].items()):
         parent = info["parent_bp"]
+        if parent == "GT":
+            continue
         if parent not in data["bp_ids"]:
             errors.append(f"ORPHAN: {wo_id} references {parent} but {parent} not found in Blueprint")
 
@@ -384,11 +390,14 @@ def generate_work_ledger(project_dir, data, warnings, errors, tree_lines, readin
             info = active_wos[wo_id]
             bp_id = info["parent_bp"]
 
-            # Build chain string
-            bp_parts = bp_id.split("-")[1].split(".")
-            es_id = f"ES-{bp_parts[0]}.{bp_parts[1]}"
-            pvd_id = f"PVD-{bp_parts[0]}"
-            chain = f"{bp_id} → {es_id} → {pvd_id}"
+            if bp_id == "GT":
+                chain = "Gap Tracker (no BP parent)"
+            else:
+                # Build chain string
+                bp_parts = bp_id.split("-")[1].split(".")
+                es_id = f"ES-{bp_parts[0]}.{bp_parts[1]}"
+                pvd_id = f"PVD-{bp_parts[0]}"
+                chain = f"{bp_id} → {es_id} → {pvd_id}"
 
             lines.append(f"{wo_id} | {chain} | Status: {info['status']}")
     else:
@@ -420,6 +429,8 @@ def generate_work_ledger(project_dir, data, warnings, errors, tree_lines, readin
 
     for wo_id, info in data["wo_ids"].items():
         bp_id = info["parent_bp"]
+        if bp_id == "GT":
+            continue  # Gap Tracker WOs don't count toward BP progress
         bp_with_wo.add(bp_id)
         if info["status"] == "DONE":
             bp_done.add(bp_id)
@@ -559,7 +570,7 @@ def run_full(project_dir):
 
     total_bp = len(data["bp_ids"])
     if total_bp > 0:
-        bp_done = len(set(info["parent_bp"] for info in data["wo_ids"].values() if info["status"] == "DONE"))
+        bp_done = len(set(info["parent_bp"] for info in data["wo_ids"].values() if info["status"] == "DONE" and info["parent_bp"] != "GT"))
         print(f"--- Progress: {bp_done}/{total_bp} Blueprint tasks completed ---")
     else:
         print("--- No Blueprint tasks found ---")
