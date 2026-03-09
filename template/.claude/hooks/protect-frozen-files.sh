@@ -43,6 +43,25 @@ DENY_JSON
   done
 fi
 
+# --- Part 1.5: One-cycle frozen bypass ---
+# If /unlock-frozen has granted a one-shot bypass for a specific file,
+# allow the edit and consume the marker. The audit trail is preserved
+# in .claude/frozen-edit-log.md (written by the skill before this runs).
+BYPASS_FILE="$PROJECT_DIR/.claude/frozen-bypass"
+if [ -f "$BYPASS_FILE" ]; then
+  BYPASS_TARGET=$(grep '^FILE=' "$BYPASS_FILE" 2>/dev/null | head -1 | cut -d= -f2-)
+  if [ -n "$BYPASS_TARGET" ]; then
+    # Normalize bypass target path
+    NORM_BYPASS=$(echo "$BYPASS_TARGET" | sed 's|\\|/|g')
+    # Match: exact match OR NORM_PATH ends with NORM_BYPASS
+    if [ "$NORM_PATH" = "$NORM_BYPASS" ] || echo "$NORM_PATH" | grep -qF "$NORM_BYPASS"; then
+      # Consume the bypass (one-shot) and allow the edit
+      rm -f "$BYPASS_FILE"
+      exit 0
+    fi
+  fi
+fi
+
 # --- Part 2: Auto-discover frozen spec files ---
 # Only check if the target file is in Specs/, Testing/, or WorkOrders/
 IS_SPEC_FILE=false

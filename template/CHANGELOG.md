@@ -8,6 +8,16 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.4.1] - 2026-03-08
+
+### Added
+- **`/unlock-frozen` skill**: Formal edit authorization for frozen spec files. Agent must provide scope, rationale, and authorization reference before a one-shot bypass is granted. All authorizations are permanently logged to `.claude/frozen-edit-log.md` for audit trail. One bypass at a time, consumed after a single write.
+
+### Changed
+- **`protect-frozen-files.sh`**: Checks for `.claude/frozen-bypass` marker before blocking frozen spec edits. Marker is consumed (deleted) after one write — subsequent edits require a new `/unlock-frozen` authorization.
+
+---
+
 ## [2.4.0] - 2026-03-08
 
 ### Added

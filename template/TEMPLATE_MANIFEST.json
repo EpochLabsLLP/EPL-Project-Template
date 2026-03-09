@@ -1,5 +1,5 @@
 {
-  "template_version": "2.4.0",
+  "template_version": "2.4.1",
   "template_repo": "Epoch Labs Project Template/_ProjectTemplate",
   "description": "Epoch Labs project template manifest. Declares file ownership for template sync.",
   "claude_md_structure_version": "2.2.0",
@@ -122,6 +122,7 @@
         ".claude/skills/template-sync/SKILL.md",
         ".claude/skills/trace-check/SKILL.md",
         ".claude/skills/trace-check/scripts/validate_traceability.py",
+        ".claude/skills/unlock-frozen/SKILL.md",
         ".claude/skills/webapp-testing/SKILL.md",
         ".claude/skills/webapp-testing/scripts/with_server.py",
         ".claude/skills/webapp-testing/examples/element_discovery.py",
