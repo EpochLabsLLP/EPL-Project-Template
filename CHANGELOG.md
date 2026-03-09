@@ -8,6 +8,36 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.4.0] - 2026-03-08
+
+### Added
+- **Vertical-first build architecture**: Waves restructured as vertical feature threads instead of horizontal layers. Walking Skeleton (Wave 0) is mandatory — proves architecture with thinnest end-to-end slice before feature work begins.
+- **Task Type field**: Blueprint task cards and Work Orders now carry `Task Type` (IMPLEMENTATION, INTEGRATION, SKELETON, E2E_VALIDATION). Pre-v2.4.0 tasks default to IMPLEMENTATION.
+- **INTEGRATION tasks**: Every row in the Engineering Spec's Module Integration Matrix should have a corresponding INTEGRATION-type task in the Blueprint. Integration is a task, not a phase.
+- **E2E_VALIDATION capstone**: The last task in every wave must be E2E_VALIDATION, validating the complete feature flow end-to-end.
+- **`/wave-complete` skill**: Validates wave exit criteria — all tasks DONE, all INTEGRATION tasks WIRED, E2E capstone passed, traceability intact. Required before proceeding to next wave.
+- **`/feature-complete` skill**: Validates a PVD feature is fully implemented — all BP tasks, integration wiring, E2E tests, and feature flow verification.
+- **Gate 7 (Integration verified)**: New quality gate in `/module-complete` checks that all integration points involving the module are verified WIRED via `/integration-logic`.
+- **Integration gap detection in `/trace-check`**: Parses Engineering Spec's Module Integration Matrix and warns if any integration pair lacks a corresponding INTEGRATION task in the Blueprint. Warnings only (backward compatible).
+- **Integration Coverage section in Work Ledger**: Shows each Integration Matrix pair and whether it's covered by an INTEGRATION task.
+
+### Changed
+- **TEMPLATE_Blueprint.md**: Major restructure — vertical build principles, prescribed wave structure (Wave 0 / Feature Threads / Final Wave), task card examples for all 4 types, strengthened integration checkpoints, expanded quality gates checklist.
+- **TEMPLATE_Work_Order.md**: Added Task Type and Blueprint fields to frontmatter, integration checklist items to validation and commit sections.
+- **TEMPLATE_Engineering_Spec.md**: Added guidance note to Module Integration Matrix linking rows to Blueprint INTEGRATION tasks.
+- **quality-gates.md**: Added Gate 7 (integration verified), updated How to Invoke to reference Gates 1-7.
+- **module-complete/SKILL.md**: Added Gate 7 (integration), renumbered WO status gate to Gate 8, updated description and verdict references.
+- **integration-logic/SKILL.md**: Added "When to Use" section clarifying when the skill is required.
+- **execution-protocol.md**: Added Wave Completion Gate section, integration evidence step (8b), INTEGRATION commit message format, updated quality gate count to 7.
+- **validate_traceability.py**: BP task parsing now extracts Task Type, Integrates, and Module fields. Added `parse_integration_matrix()` and `check_integration_coverage()` functions.
+- **TEMPLATE_MANIFEST.json**: Registered wave-complete and feature-complete skills, bumped version to 2.4.0.
+
+### Migration Notes
+- **From v2.3.x**: Run `/template-sync --apply` to get new files and updated templates. Existing Blueprint task cards without a `Task Type` field default to IMPLEMENTATION — no migration required for existing projects.
+- **New projects**: Use the updated TEMPLATE_Blueprint.md with Wave 0 (Walking Skeleton) as the first wave. Define INTEGRATION tasks for every entry in the Module Integration Matrix.
+
+---
+
 ## [2.3.4] - 2026-03-08
 
 ### Added

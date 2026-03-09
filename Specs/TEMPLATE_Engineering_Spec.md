@@ -116,6 +116,10 @@ Example:
 
 ## 6. Module Integration Matrix
 
+<!-- NOTE: Every row in this matrix should produce a corresponding INTEGRATION-type
+     task card in the Blueprint (Section 4). If Module A talks to Module B, someone
+     must explicitly build and verify that wiring. -->
+
 {Which modules talk to which, and how?}
 
 | Source Module | Target Module | Integration Type | Data Exchanged |

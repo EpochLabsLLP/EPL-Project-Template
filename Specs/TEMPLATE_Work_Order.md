@@ -25,6 +25,8 @@
 |-------|-------|
 | **WO ID** | WO-{N.M.T}-{X} |
 | **Status** | PENDING / IN-PROGRESS / VALIDATION / DONE / FAILED |
+| **Task Type** | IMPLEMENTATION / INTEGRATION / SKELETON / E2E_VALIDATION |
+| **Blueprint** | BP-{N.M.T} (or GT for Gap Tracker) |
 | **Created** | {YYYY-MM-DD} |
 | **Updated** | {YYYY-MM-DD} |
 | **Assigned To** | {Agent name or team} |
@@ -102,6 +104,7 @@ WO-{N.M.T}-{X}  →  BP-{N.M.T}  →  ES-{N.M}  →  PVD-{N}
 - [ ] No compiler/linter warnings
 - [ ] Interface contracts match Engineering Spec exactly
 - [ ] Traceability chain is valid (run `/trace-check`)
+- [ ] If INTEGRATION task: `/integration-logic` reports WIRED for integrated modules
 
 ---
 
@@ -129,4 +132,5 @@ WO-{N.M.T}-{X}  →  BP-{N.M.T}  →  ES-{N.M}  →  PVD-{N}
 
 - [ ] All WO files staged (source, tests, WO, Work Ledger)
 - [ ] Commit message: `WO-{N.M.T}-{X}: {description}`
+- [ ] If INTEGRATION task: integration verdict (WIRED/PARTIAL/BROKEN) noted in commit message
 - [ ] Pushed to remote

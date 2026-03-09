@@ -1,6 +1,6 @@
 ---
 name: module-complete
-description: Run all 6 quality gates against a module before marking it complete. This is the Definition of Done enforcer. Use before marking any module as done, when checking if a module meets all completion criteria, or when verifying quality gates (no stubs, tests, no TODOs, license compliance, clean build, performance).
+description: Run all 7 quality gates against a module before marking it complete. This is the Definition of Done enforcer. Use before marking any module as done, when checking if a module meets all completion criteria, or when verifying quality gates (no stubs, tests, no TODOs, license compliance, clean build, performance, integration).
 argument-hint: <module>
 ---
 
@@ -50,7 +50,17 @@ When invoked with a module name (`$ARGUMENTS`):
    - If targets exist, verify they're met (or document how to verify)
    - If no targets specified, PASS with note "no performance targets in spec"
 
-4. **Post-check: Work Order status (Gate 7)**
+   **Gate 7: Integration verified**
+   - Read the Engineering Spec's Module Integration Matrix (Section 6)
+   - Identify all rows where this module is Source or Target
+   - If integration points exist:
+     - Search for evidence that `/integration-logic` was run for each integration point
+     - Check that each reported WIRED (not PARTIAL or BROKEN)
+     - PASS only if all integration points verified as WIRED
+   - If NO integration points exist (standalone module):
+     - PASS with note "no integration points in Module Integration Matrix"
+
+4. **Post-check: Work Order status (Gate 8)**
    - Search `WorkOrders/` for a WO that corresponds to this module's Blueprint task.
    - If WO found and status is DONE → PASS
    - If WO found and status is VALIDATION → PASS with note: "WO in VALIDATION — set to DONE after all gates pass"
@@ -67,8 +77,9 @@ When invoked with a module name (`$ARGUMENTS`):
    | 4 | No GPL deps | PASS/FAIL | {flagged deps} |
    | 5 | Clean build | PASS/FAIL | {warnings/errors} |
    | 6 | Performance | PASS/FAIL/N/A | {target vs actual} |
-   | 7 | WO status | PASS/WARN | {WO ID and status} |
+   | 7 | Integration | PASS/FAIL/N/A | {X/Y integration points WIRED} |
+   | 8 | WO status | PASS/WARN | {WO ID and status} |
 
 6. **Verdict:**
-   - **ALL PASS** (Gates 0-6, Gate 7 PASS or WARN) -> Module is COMPLETE. Update the gap tracker: check off the item. Set WO status to DONE.
-   - **ANY FAIL** (Gates 0-6) -> Module is NOT COMPLETE. List what must be fixed. Do not mark complete.
+   - **ALL PASS** (Gates 0-7, Gate 8 PASS or WARN) -> Module is COMPLETE. Update the gap tracker: check off the item. Set WO status to DONE.
+   - **ANY FAIL** (Gates 0-7) -> Module is NOT COMPLETE. List what must be fixed. Do not mark complete.

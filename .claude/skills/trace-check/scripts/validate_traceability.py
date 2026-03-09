@@ -27,6 +27,66 @@ from datetime import datetime
 from pathlib import Path
 
 
+def parse_integration_matrix(project_dir):
+    """Parse Engineering Spec's Module Integration Matrix for integration pairs.
+
+    Returns a list of (source, target) tuples, e.g., [("ES-1.1", "ES-1.2"), ...].
+    Returns empty list if no Engineering Spec or no Integration Matrix found.
+    """
+    pairs = []
+    spec_dir = project_dir / "Specs"
+    if not spec_dir.exists():
+        return pairs
+
+    for f in spec_dir.iterdir():
+        if not f.is_file() or not f.suffix == ".md":
+            continue
+        if f.name.startswith("TEMPLATE_"):
+            continue
+        if "engineering_spec" not in f.name.lower():
+            continue
+
+        content = f.read_text(encoding="utf-8", errors="replace")
+
+        # Look for Module Integration Matrix table rows: | ES-N.M | ES-X.Y | ... |
+        for m in re.finditer(r'\|\s*(ES-\d+\.\d+)\s*\|\s*(ES-\d+\.\d+)\s*\|', content):
+            pair = (m.group(1), m.group(2))
+            if pair not in pairs:
+                pairs.append(pair)
+
+    return pairs
+
+
+def check_integration_coverage(data, integration_pairs):
+    """Check that each integration pair has a corresponding INTEGRATION task in the Blueprint.
+
+    Returns a list of warning strings for uncovered pairs.
+    """
+    integration_warnings = []
+
+    for source, target in integration_pairs:
+        # Look for a BP task with task_type INTEGRATION that covers this pair
+        found = False
+        for bp_id, info in data["bp_ids"].items():
+            if info.get("task_type") != "INTEGRATION":
+                continue
+            # Check if the BP task's integrates field or module field references both modules
+            integrates = info.get("integrates", "")
+            module = info.get("module", "")
+            if (source in integrates and target in integrates) or \
+               (source in module and target in module):
+                found = True
+                break
+
+        if not found:
+            integration_warnings.append(
+                f"INTEGRATION_GAP: {source} → {target} in Integration Matrix "
+                f"but no INTEGRATION task found in Blueprint"
+            )
+
+    return integration_warnings
+
+
 def find_files(project_dir, subdirs, pattern="*.md"):
     """Find markdown files in specified subdirectories."""
     files = []
@@ -132,12 +192,30 @@ def parse_specs(project_dir):
             parent_n = m.group(1).split(".")[0]
             data["ux_ids"][ux_id] = {"file": rel_path, "parent_pvd": f"PVD-{parent_n}", "title": m.group(2).strip()}
 
-        # BP IDs: BP-N.M.T
-        for m in re.finditer(r'###\s+BP-(\d+\.\d+\.\d+):\s*(.+)', content):
+        # BP IDs: BP-N.M.T (with optional Task Type, Integrates, and Module fields)
+        bp_sections = re.split(r'(?=###\s+BP-\d+\.\d+\.\d+:)', content)
+        for section in bp_sections:
+            m = re.match(r'###\s+BP-(\d+\.\d+\.\d+):\s*(.+)', section)
+            if not m:
+                continue
             bp_id = f"BP-{m.group(1)}"
             parts = m.group(1).split(".")
             parent_es = f"ES-{parts[0]}.{parts[1]}"
-            data["bp_ids"][bp_id] = {"file": rel_path, "parent_es": parent_es, "title": m.group(2).strip()}
+            bp_info = {"file": rel_path, "parent_es": parent_es, "title": m.group(2).strip()}
+
+            # Extract Task Type (default IMPLEMENTATION for backward compat)
+            tt_match = re.search(r'\*\*Task Type:?\*\*\s*(IMPLEMENTATION|INTEGRATION|SKELETON|E2E_VALIDATION)', section)
+            bp_info["task_type"] = tt_match.group(1) if tt_match else "IMPLEMENTATION"
+
+            # Extract Integrates field (for INTEGRATION tasks)
+            int_match = re.search(r'\*\*Integrates:?\*\*\s*(.+)', section)
+            bp_info["integrates"] = int_match.group(1).strip() if int_match else ""
+
+            # Extract Module field (may reference multiple modules for INTEGRATION tasks)
+            mod_match = re.search(r'\*\*Module:?\*\*\s*(.+)', section)
+            bp_info["module"] = mod_match.group(1).strip() if mod_match else ""
+
+            data["bp_ids"][bp_id] = bp_info
 
         # TP IDs: TP-N.M.T
         for m in re.finditer(r'###\s+TP-(\d+\.\d+\.\d+):\s*(.+)', content):
@@ -171,7 +249,7 @@ def parse_specs(project_dir):
     return data
 
 
-def validate_chains(data):
+def validate_chains(data, project_dir=None):
     """Validate traceability chains and report issues."""
     warnings = []
     errors = []
@@ -214,6 +292,13 @@ def validate_chains(data):
         has_es = any(es.startswith(f"ES-{n}.") for es in data["es_ids"])
         if not has_es and data["es_ids"]:  # Only warn if ES exists at all
             warnings.append(f"GAP: {pvd_id} has no Engineering Spec modules (no ES-{n}.x found)")
+
+    # Integration gap detection (warnings only — backward compatible)
+    if project_dir:
+        integration_pairs = parse_integration_matrix(project_dir)
+        if integration_pairs:
+            integration_warnings = check_integration_coverage(data, integration_pairs)
+            warnings.extend(integration_warnings)
 
     return warnings, errors
 
@@ -451,6 +536,30 @@ def generate_work_ledger(project_dir, data, warnings, errors, tree_lines, readin
         lines.append("No Blueprint tasks found. Create and freeze a Blueprint to track progress.")
     lines.append("")
 
+    # Integration Coverage
+    integration_pairs = parse_integration_matrix(project_dir)
+    if integration_pairs:
+        lines.append("## Integration Coverage")
+        for source, target in integration_pairs:
+            # Check if covered by an INTEGRATION task
+            covered = False
+            covering_bp = None
+            for bp_id, info in data["bp_ids"].items():
+                if info.get("task_type") != "INTEGRATION":
+                    continue
+                integrates = info.get("integrates", "")
+                module = info.get("module", "")
+                if (source in integrates and target in integrates) or \
+                   (source in module and target in module):
+                    covered = True
+                    covering_bp = bp_id
+                    break
+            if covered:
+                lines.append(f"- [x] {source} → {target} — covered by {covering_bp}")
+            else:
+                lines.append(f"- [ ] {source} → {target} — **no INTEGRATION task**")
+        lines.append("")
+
     # Write file
     ledger_path = project_dir / "Specs" / "Work_Ledger.md"
     ledger_path.parent.mkdir(parents=True, exist_ok=True)
@@ -494,7 +603,7 @@ def run_check_active_wo(project_dir):
 def run_quick(project_dir):
     """Quick validation: validate chains, print one-line status, no ledger generation."""
     data = parse_specs(project_dir)
-    warnings, errors = validate_chains(data)
+    warnings, errors = validate_chains(data, project_dir)
 
     error_count = len(errors)
     warning_count = len(warnings)
@@ -518,7 +627,7 @@ def run_full(project_dir):
     data = parse_specs(project_dir)
 
     # Validate chains
-    warnings, errors = validate_chains(data)
+    warnings, errors = validate_chains(data, project_dir)
 
     # Build traceability tree
     tree_lines = build_traceability_tree(data)

@@ -6,6 +6,15 @@ argument-hint: <module-a> <module-b>
 
 # Integration Logic
 
+## When to Use
+
+- **Required** for every INTEGRATION-type Blueprint task (per execution-protocol.md)
+- **Required** before `/module-complete` if the module appears in the Integration Matrix
+- After implementing interfaces that span module boundaries
+- When debugging cross-module issues (dependency injection, data contracts, error propagation)
+
+## Execution
+
 When invoked with two module names (`$0` and `$1`):
 
 1. **Load specs for both modules.** Read their interface contracts, expected inputs/outputs, and dependency declarations.
