@@ -28,6 +28,12 @@
 6. **Performance meets targets specified in the Engineering Spec.**
    *Intent: A feature that works but is too slow is a feature that doesn't work.*
 
+7. **Integration points verified (if applicable).**
+   *Intent: A module that works in isolation but fails when connected to its neighbors is not complete. Verify the wiring, not just the unit.*
+   - Check the Engineering Spec's Module Integration Matrix for integration points involving this module.
+   - If integration points exist, `/integration-logic` must have been run for each and reported WIRED.
+   - If no integration points exist (standalone module), this gate is N/A.
+
 ## How to Invoke
 
-Run `/module-complete <module>` to verify all gates against a specific module. The skill will check each gate and report pass/fail.
+Run `/module-complete <module>` to verify all gates (Gates 1-7) against a specific module. The skill will check each gate and report pass/fail.

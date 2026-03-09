@@ -48,7 +48,7 @@ PENDING ──→ IN-PROGRESS ──→ VALIDATION ──→ DONE
 ### Enforcement
 
 - **Code writes require IN-PROGRESS:** The code-gate hook checks for at least one WO with status IN-PROGRESS before allowing writes to code directories. Create a WO with `/init-doc wo WO-N.M.T-X` and set its status to IN-PROGRESS before coding.
-- **DONE requires quality gates:** Before setting a WO to DONE, run `/code-review` and `/module-complete` for the module. All 6 quality gates must pass.
+- **DONE requires quality gates:** Before setting a WO to DONE, run `/code-review` and `/module-complete` for the module. All 7 quality gates must pass.
 - **FAILED triggers archive protocol:** Failed WOs must be archived to `WorkOrders/_Archive/` before creating the next attempt. See change-control.md for the WO Failure Protocol.
 
 ## Mandatory Checkpoints (Agent Responsibilities)
@@ -70,17 +70,29 @@ These are not auto-enforced by hooks but are REQUIRED by project governance. Ski
 ### After Implementation
 
 7. **Run `/code-review <module>`** — Post-implementation quality review. Required before module-complete.
-8. **Run `/module-complete <module>`** — Verify all 6 quality gates pass. Required before marking WO as DONE.
+8. **Run `/module-complete <module>`** — Verify all 7 quality gates pass. Required before marking WO as DONE.
+8b. **If INTEGRATION task: Run `/integration-logic <module-a> <module-b>`** — Verify the wiring is complete. Include the verdict (WIRED/PARTIAL/BROKEN) in the Work Order validation notes.
 9. **Update WO status** — Set to VALIDATION (if awaiting review) or DONE (if all gates pass).
 10. **Run `/trace-check`** — Verify traceability chains are intact after changes. (Also runs automatically at session start and before commits.)
 
 ### Commit After Each Work Order
 
 11. **When a WO reaches DONE, commit and push immediately.** Each WO is a self-contained unit of traceable work and a natural commit boundary. Do not batch multiple completed WOs into a single commit.
-12. **Commit message must reference the WO ID.** Format: `WO-N.M.T-X: <description of what was implemented>`. This ties the git history to the traceability chain.
+12. **Commit message must reference the WO ID.** Format: `WO-N.M.T-X: <description of what was implemented>`. For INTEGRATION tasks, append the integration verdict: `WO-N.M.T-X: Wire ES-1.1 → ES-1.2 [WIRED]`. This ties the git history to the traceability chain.
 13. **Stage only files related to the WO.** Include the module source, tests, the WO file itself, and the updated Work Ledger. Do not stage unrelated changes.
 14. **Commit-gate runs automatically** — Validates traceability and scans for secrets.
 15. **Run `/pre-commit`** for full hygiene — The commit-gate covers traceability and secrets; `/pre-commit` also checks TODOs, debug statements, file hygiene, build, and tests.
+
+## Wave Completion Gate
+
+Before proceeding to the next wave, the current wave must pass its exit criteria:
+
+1. **All tasks in the wave have DONE Work Orders** — every BP task card assigned to the wave.
+2. **All INTEGRATION tasks report WIRED** — `/integration-logic` was run for each integration task and reported WIRED.
+3. **The wave's E2E_VALIDATION capstone passed** — the final task in the wave validates the end-to-end feature flow.
+4. **Run `/wave-complete <wave>`** — aggregates all checks and reports PASS or lists gaps.
+
+Do not begin the next wave until the current wave passes. If blocked, escalate per the Risk Escalation Protocol.
 
 ## Traceability is Continuous
 
