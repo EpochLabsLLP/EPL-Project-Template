@@ -2,7 +2,7 @@
 name: template-migrate
 description: Guided migration for projects with outdated or missing CLAUDE.md structure. Handles legacy projects, major version upgrades, and fresh installs. Human-in-the-loop — always confirms before writing.
 argument-hint: "--dry-run"
-user-invokable: true
+user-invocable: true
 ---
 
 # template-migrate

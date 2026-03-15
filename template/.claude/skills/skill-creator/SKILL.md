@@ -52,7 +52,7 @@ When invoked with a skill name (`$ARGUMENTS`):
    - No leading, trailing, or consecutive hyphens in `name`
    - `description` must not contain angle brackets (`<` or `>`)
    - `description` should be "pushy" — include contexts where the skill should trigger, even if the user doesn't explicitly name it
-   - Optional: `argument-hint` for autocomplete hints, `disable-model-invocation: true` to prevent auto-loading
+   - Optional Claude Code extensions (beyond agent-skills-spec): `argument-hint` for autocomplete hints, `user-invocable: false` to hide from `/` menu (agent-only), `disable-model-invocation: true` to prevent auto-loading
 
 6. **Supporting directories** (create only if the skill needs them):
    - `scripts/` — Executable code for deterministic or repetitive tasks

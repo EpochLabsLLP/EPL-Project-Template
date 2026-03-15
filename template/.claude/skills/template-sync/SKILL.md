@@ -2,7 +2,7 @@
 name: template-sync
 description: Compare the current project against the template repo and sync updates. Use to propagate template improvements to active projects without clobbering project-specific customizations.
 argument-hint: "--apply"
-user-invokable: true
+user-invocable: true
 ---
 
 # template-sync

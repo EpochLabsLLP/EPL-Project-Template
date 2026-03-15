@@ -8,6 +8,16 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.4.2] - 2026-03-14
+
+### Fixed
+- **Skill frontmatter spelling**: Corrected `user-invokable` to `user-invocable` (with "c") across 8 skill files. The prior spelling was silently ignored by Claude Code — no functional impact since default is `true`, but would have caused silent failures for any skill set to `false`.
+
+### Changed
+- **skill-creator/SKILL.md**: Updated frontmatter documentation to list `user-invocable` and `disable-model-invocation` as Claude Code extension fields, distinct from the 6 agent-skills-spec standard fields.
+
+---
+
 ## [2.4.1] - 2026-03-08
 
 ### Added
