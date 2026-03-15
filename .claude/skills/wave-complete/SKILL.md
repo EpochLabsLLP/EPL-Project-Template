@@ -2,7 +2,7 @@
 name: wave-complete
 description: Validate that a wave's exit criteria are met before proceeding to the next wave. Checks all module-complete gates, integration verification, and E2E validation capstone for the specified wave.
 argument-hint: <wave-number>
-user-invokable: true
+user-invocable: true
 ---
 
 # wave-complete

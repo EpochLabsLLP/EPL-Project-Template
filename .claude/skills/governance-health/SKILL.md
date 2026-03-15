@@ -1,7 +1,7 @@
 ---
 name: governance-health
 description: Validate that the governance system (hooks, rules, skills, scripts) is intact and functional. Use to diagnose governance failures, verify setup after template sync, or audit a project's template compliance.
-user-invokable: true
+user-invocable: true
 ---
 
 # governance-health

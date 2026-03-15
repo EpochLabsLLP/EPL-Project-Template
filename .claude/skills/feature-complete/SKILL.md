@@ -2,7 +2,7 @@
 name: feature-complete
 description: Validate that a PVD feature is fully implemented end-to-end. Checks all Blueprint tasks, integration wiring, and E2E test scenarios for a specific PVD feature. Use after completing a feature's wave to verify the full vertical slice works.
 argument-hint: <PVD-N>
-user-invokable: true
+user-invocable: true
 ---
 
 # feature-complete

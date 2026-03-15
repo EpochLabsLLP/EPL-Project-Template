@@ -2,7 +2,7 @@
 name: init-doc
 description: Create a new spec document from the correct template. Use when starting any new document (PVD, PRD, Engineering Spec, Blueprint, etc.) to ensure proper structure, naming, and template compliance.
 argument-hint: <type> [abbreviation]
-user-invokable: true
+user-invocable: true
 ---
 
 # init-doc

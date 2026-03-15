@@ -2,7 +2,7 @@
 name: unlock-frozen
 description: Create a formal edit authorization for a frozen spec file. Requires written rationale justifying the edit — what will change, why, and what authorized it. Creates a one-shot bypass consumed after one write. All authorizations are permanently logged for audit.
 argument-hint: <file-path>
-user-invokable: true
+user-invocable: true
 ---
 
 # unlock-frozen
