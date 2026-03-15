@@ -84,14 +84,13 @@ Invoke with `/skill-name <args>`.
 | integration-logic | `/integration-logic <mod-a> <mod-b>` | Verify cross-module wiring |
 | pre-commit | `/pre-commit` | Before every git commit |
 | module-complete | `/module-complete <module>` | Before marking any module done |
-| frontend-design | `/frontend-design` | Building any web UI or frontend component |
-| webapp-testing | `/webapp-testing` | Testing web apps with Playwright |
 | trace-check | `/trace-check` | After creating/updating any spec or Work Order |
-| skill-creator | `/skill-creator <name>` | Create a new project-specific skill |
 | init-doc | `/init-doc <type> [abbreviation]` | Creating any new spec document from template |
 | template-sync | `/template-sync [--apply]` | Syncing template updates to this project |
 | template-migrate | `/template-migrate [--dry-run]` | Migrating CLAUDE.md structure for legacy/major upgrades |
 | governance-health | `/governance-health` | Validating governance system integrity |
+
+Additional skills (skill-creator, frontend-design, webapp-testing, etc.) are provided via the Anthropic Plugin Marketplace. Accept the marketplace prompt on first use or run `/plugin marketplace list` to check status.
 
 ## Problem-Solving Protocol
 Follow the 4-tier protocol in `/.claude/rules/problem-solving.md`. Max 3 actions per tier before escalating.

@@ -9,7 +9,7 @@ Categories (from TEMPLATE_MANIFEST.json):
     infrastructure        — Template-owned. Always overwritten on sync.
     template              — Reference files. Always overwritten on sync.
     scaffolding           — Created once. Project-owned after. Never overwritten.
-    managed_scaffolding   — Project-owned but hooks block is merged from template.
+    managed_scaffolding   — Project-owned but hooks and marketplace blocks are merged from template.
     generated             — Auto-generated. Skipped entirely.
 
 Safety: Never deletes files. Never modifies scaffolding. Always backs up before overwriting.
@@ -102,10 +102,11 @@ def check_claude_md_version(project_dir, manifest):
 
 
 def merge_settings_json(project_dir, manifest):
-    """Merge template hook registrations into project settings.json.
+    """Merge template registrations into project settings.json.
 
-    Preserves all existing project keys (permissions, custom hooks).
-    Only adds/updates hooks declared in the manifest's hook_registrations.
+    Preserves all existing project keys (permissions, custom hooks, custom plugins).
+    Merges hooks from hook_registrations and marketplaces/plugins from
+    marketplace_registrations. Both are additive only — never removes project entries.
 
     Returns:
         (changes, merged_settings)
@@ -185,8 +186,35 @@ def merge_settings_json(project_dir, manifest):
 
             proj_matcher_entry["hooks"] = proj_hook_list
 
+    # Merge marketplace registrations (additive only, same philosophy as hooks)
+    marketplace_regs = manifest.get("marketplace_registrations", None)
+    if marketplace_regs:
+        # Merge extraKnownMarketplaces
+        tmpl_marketplaces = marketplace_regs.get("extraKnownMarketplaces", {})
+        if tmpl_marketplaces:
+            if "extraKnownMarketplaces" not in project_settings:
+                project_settings["extraKnownMarketplaces"] = {}
+            proj_marketplaces = project_settings["extraKnownMarketplaces"]
+            for name, config in tmpl_marketplaces.items():
+                if name not in proj_marketplaces:
+                    proj_marketplaces[name] = config
+                    changes.append(f"+ marketplace: adding {name}")
+                    modified = True
+
+        # Merge enabledPlugins
+        tmpl_plugins = marketplace_regs.get("enabledPlugins", {})
+        if tmpl_plugins:
+            if "enabledPlugins" not in project_settings:
+                project_settings["enabledPlugins"] = {}
+            proj_plugins = project_settings["enabledPlugins"]
+            for plugin_name, enabled in tmpl_plugins.items():
+                if plugin_name not in proj_plugins:
+                    proj_plugins[plugin_name] = enabled
+                    changes.append(f"+ plugin: enabling {plugin_name}")
+                    modified = True
+
     if not modified:
-        return (["= settings.json hooks: up to date"], None)
+        return (["= settings.json: up to date"], None)
 
     return (changes, project_settings)
 

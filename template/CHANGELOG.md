@@ -8,6 +8,28 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.4.3] - 2026-03-15
+
+### Added
+- **Plugin Marketplace integration**: Template now declares the Anthropic Agent Skills marketplace (`anthropics/skills`) in `settings.json` via `extraKnownMarketplaces` and `enabledPlugins`. Projects will prompt users to install the marketplace on first trust. Skills like skill-creator, frontend-design, and webapp-testing are now consumed from the marketplace (always up-to-date) rather than shipped as local copies.
+- **Marketplace merge in `template_sync.py`**: The sync engine now merges `extraKnownMarketplaces` and `enabledPlugins` from the manifest into project `settings.json`, following the same additive-only philosophy as hook merging. Never removes project marketplaces or plugins.
+- **`marketplace_registrations` in `TEMPLATE_MANIFEST.json`**: Single source of truth for marketplace declarations, parallel to `hook_registrations`.
+
+### Removed
+- **Local `skill-creator/SKILL.md`**: Replaced by `example-skills@anthropic-agent-skills` marketplace plugin. The marketplace version auto-updates and is always authoritative.
+- **Local `frontend-design/SKILL.md`**: Same — now from marketplace.
+- **Local `webapp-testing/` (SKILL.md + scripts + examples)**: Same — now from marketplace.
+
+### Changed
+- **`TEMPLATE_MANIFEST.json`**: Added `marketplace_registrations` section; removed 3 Anthropic skill files from infrastructure list (skill-creator, frontend-design, webapp-testing). Updated managed_scaffolding description to include marketplace declarations.
+- **`CLAUDE.md` template**: Removed skill-creator, frontend-design, webapp-testing from local skills table. Added marketplace note directing users to accept the marketplace prompt or check `/plugin marketplace list`.
+
+### Migration Notes
+- **From v2.4.2**: Run `/template-sync --apply`. The sync will add marketplace declarations to your `settings.json` and remove the 3 local Anthropic skill copies (replaced by marketplace versions). On next session start, Claude Code will prompt you to install the Anthropic Agent Skills marketplace — accept it to get auto-updating skills.
+- **If marketplace is unavailable** (offline, CI, etc.): The 16 governance skills remain local and fully functional. Only skill-creator, frontend-design, and webapp-testing require marketplace access.
+
+---
+
 ## [2.4.2] - 2026-03-14
 
 ### Fixed
