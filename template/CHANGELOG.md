@@ -8,6 +8,16 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.5.1] - 2026-03-16
+
+### Changed
+- **`problem-solving.md` rule**: Strengthened anti-wall-banging enforcement. Failed fix attempts now explicitly count as tier actions — agents cannot try multiple fix variations at the same tier without researching first. Added "stop hitting, start reading" principle and reinforced each tier's purpose (Tier 1: diagnose, Tier 2: understand internally, Tier 3: research externally). Addresses agents burning context on repeated blind fix attempts instead of stepping back to gather understanding.
+
+### Migration Notes
+- **From v2.5.0**: Run `/template-sync --apply`. The updated `problem-solving.md` is infrastructure (auto-deployed).
+
+---
+
 ## [2.5.0] - 2026-03-15
 
 ### Added
