@@ -68,6 +68,23 @@ See `/.claude/rules/execution-protocol.md` for the full mandatory workflow.
 ## Cross-Project Integration
 - **_shared/** — Junction to `_SharedCore`. Check before writing code that touches cross-project boundaries.
 
+## Memory System (MCP)
+This project is connected to the Epoch Labs shared memory system via `.mcp.json`. Three MCP servers are available:
+
+| Server | What It Provides |
+|--------|-----------------|
+| **memory-db** | Local SQLite — `claude_memory.db`. Tables: `project_context`, `local_sessions`, `personal_memory`, `memory_entities`, `memory_relations`, `document_index`. Fast reads/writes. |
+| **supabase-dev** | Cloud PostgreSQL + pgvector. Mirrors local tables plus `content_embeddings` (semantic search) and `omi_conversations`. Use for cross-session queries, vector search, and the knowledge graph. |
+| **context7** | Library documentation lookups. Use before reaching for web search. |
+
+**When to use the memory system:**
+- **Starting a session:** Query `project_context` for this project's current state, open threads, and architecture notes.
+- **Ending a session:** Log a summary to `local_sessions` and update `project_context` if scope changed.
+- **Researching context:** Search `memory_entities` and `memory_relations` for the knowledge graph. Use Supabase's `search_memory()` or `get_related_entities()` functions for deeper lookups.
+- **Registering documents:** Log new spec/session files to `document_index` with full content for graph extraction.
+
+See `C:\Claude Folder\Memory\CLAUDE.md` for full schema reference and constraints.
+
 ## Quality Gates
 Before marking ANY module complete, run `/code-review` then `/module-complete`. All gates in `/.claude/rules/quality-gates.md` must pass.
 

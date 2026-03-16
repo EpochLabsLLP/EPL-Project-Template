@@ -8,6 +8,24 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.5.0] - 2026-03-15
+
+### Added
+- **`.mcp.json` template** (scaffolding): Pre-configured MCP servers for the Epoch Labs shared memory system — `memory-db` (local SQLite at `claude_memory.db`), `supabase-dev` (cloud PostgreSQL + pgvector + knowledge graph), and `context7` (library documentation). Agents in every project now have immediate access to session history, project context, knowledge graph, and semantic search without manual configuration.
+- **Memory System section in `CLAUDE.md`**: Documents the three MCP servers and provides guidance on when/how agents should use the memory system (session start/end, research, document registration).
+- **`intellectual-honesty.md` rule** (infrastructure): Three-part rule addressing agent behavior:
+  - **Research before opinion:** Agents must verify claims before stating them as fact. No bluffing — "I'm not sure, let me check" beats a confident guess.
+  - **Truthful quality reporting:** No sugarcoating completeness, hiding failures, or burying bad news in optimistic framing. Nathan makes business decisions based on agent reports.
+  - **Observation vs. speculation:** Agents must clearly label what they verified, what they inferred, and what they're guessing.
+
+### Changed
+- **`TEMPLATE_MANIFEST.json`**: Added `intellectual-honesty.md` to infrastructure files; added `.mcp.json` to scaffolding files. Version bump to 2.5.0.
+
+### Migration Notes
+- **From v2.4.3**: Run `/template-sync --apply`. The sync will deploy the new `intellectual-honesty.md` rule (infrastructure, auto-deployed). `.mcp.json` is scaffolding — it will be created if absent but won't overwrite an existing project `.mcp.json`. If your project already has a `.mcp.json`, manually add the `memory-db` and `supabase-dev` servers from the template version. The CLAUDE.md Memory System section must be added manually (scaffolding — use `/template-migrate` if needed).
+
+---
+
 ## [2.4.3] - 2026-03-15
 
 ### Added
