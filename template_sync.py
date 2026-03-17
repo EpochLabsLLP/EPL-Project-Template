@@ -46,10 +46,18 @@ def copy_with_lf(src, dst):
 
 
 def file_hash(path):
-    """SHA-256 hash of file contents."""
+    """SHA-256 hash of file contents, normalized for .sh/.py files.
+
+    For script files, CRLF is stripped before hashing so that a
+    CRLF source and an LF dest are correctly detected as drifted.
+    """
     try:
         with open(path, "rb") as f:
-            return hashlib.sha256(f.read()).hexdigest()
+            content = f.read()
+        _, ext = os.path.splitext(path)
+        if ext.lower() in LF_EXTENSIONS:
+            content = content.replace(b"\r\n", b"\n")
+        return hashlib.sha256(content).hexdigest()
     except (OSError, IOError):
         return None
 
