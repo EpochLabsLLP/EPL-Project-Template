@@ -68,6 +68,15 @@ See `/.claude/rules/execution-protocol.md` for the full mandatory workflow.
 ## Cross-Project Integration
 - **_shared/** — Junction to `_SharedCore`. Check before writing code that touches cross-project boundaries.
 
+## Agent Mail
+Agents in different projects communicate via `.claude/inbox/`. Messages are structured markdown with priority and type.
+
+- **Inbox check is automatic** — session start/resume/compact hooks surface unread messages.
+- **Urgent messages take priority** — address before continuing other work.
+- **To send mail:** Run `/mail <project-name>`. The skill looks up the target path from `_shared/project_registry.json`.
+- **To check mail:** Run `/mail --check` or read `.claude/inbox/*.md` directly.
+- **After processing:** Move messages to `.claude/inbox/_processed/` (never delete — permanent audit trail).
+
 ## Memory System (MCP)
 This project is connected to the Epoch Labs shared memory system via `.mcp.json`. Three MCP servers are available:
 
@@ -106,6 +115,7 @@ Invoke with `/skill-name <args>`.
 | template-sync | `/template-sync [--apply]` | Syncing template updates to this project |
 | template-migrate | `/template-migrate [--dry-run]` | Migrating CLAUDE.md structure for legacy/major upgrades |
 | governance-health | `/governance-health` | Validating governance system integrity |
+| mail | `/mail <project> \| --check` | Sending messages to other projects or checking inbox |
 
 Additional skills (skill-creator, frontend-design, webapp-testing, etc.) are provided via the Anthropic Plugin Marketplace. Accept the marketplace prompt on first use or run `/plugin marketplace list` to check status.
 
