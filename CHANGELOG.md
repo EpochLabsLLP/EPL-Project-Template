@@ -8,6 +8,18 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.5.3] - 2026-03-17
+
+### Added
+- **Agent Mail system** (`/mail` skill + inbox hooks): Cross-project async messaging. Agents can send structured messages (with priority and type) to other projects' inboxes. Session start/resume/compact hooks auto-surface unread messages. Urgent messages are flagged for immediate attention. Permanent audit trail in `.claude/inbox/_processed/`.
+- **Project registry** (`_SharedCore/project_registry.json`): Central lookup for project names → filesystem paths. Used by `/mail` to resolve target inboxes. Supports multi-OS path roots (Windows + macOS).
+- **Agent Mail section in CLAUDE.md template**: Documents the inbox system, `/mail` invocation, and message lifecycle.
+
+### Migration Notes
+- **From v2.5.2**: Run `/template-sync --apply`. The `/mail` skill and hook updates are infrastructure (auto-deployed). Create `_SharedCore/project_registry.json` if it doesn't exist (template sync doesn't manage `_SharedCore`). Inbox directories are created on-demand by the `/mail` skill.
+
+---
+
 ## [2.5.2] - 2026-03-17
 
 ### Fixed

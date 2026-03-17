@@ -51,3 +51,20 @@ if [ -f "$GAP_TRACKER" ]; then
     echo "SCOPE GUARD: $TIER0 Tier 0 defect(s) open — resolve these first."
   fi
 fi
+
+# --- Agent Mail: Inbox Check ---
+INBOX_DIR="$PROJECT_DIR/.claude/inbox"
+if [ -d "$INBOX_DIR" ]; then
+  MAIL_COUNT=$(find "$INBOX_DIR" -maxdepth 1 -name "*.md" 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$MAIL_COUNT" -gt 0 ]; then
+    URGENT_COUNT=$(grep -rl "^priority: urgent" "$INBOX_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ')
+    echo ""
+    if [ "$URGENT_COUNT" -gt 0 ]; then
+      echo "[INBOX: $MAIL_COUNT message(s), $URGENT_COUNT URGENT]"
+      echo "URGENT MAIL — read and address before other work."
+    else
+      echo "[INBOX: $MAIL_COUNT message(s)]"
+    fi
+    echo "Run /mail --check to read messages."
+  fi
+fi
