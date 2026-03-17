@@ -24,6 +24,27 @@ import glob as globmod
 from datetime import datetime
 
 
+LF_EXTENSIONS = {".sh", ".py"}
+
+
+def copy_with_lf(src, dst):
+    """Copy file, normalizing CRLF→LF for shell/Python files.
+
+    Ensures scripts work on macOS/Linux even when the source
+    working tree has CRLF (Windows core.autocrlf=true).
+    """
+    _, ext = os.path.splitext(src)
+    if ext.lower() in LF_EXTENSIONS:
+        with open(src, "rb") as f:
+            content = f.read()
+        content = content.replace(b"\r\n", b"\n")
+        with open(dst, "wb") as f:
+            f.write(content)
+        shutil.copystat(src, dst)
+    else:
+        shutil.copy2(src, dst)
+
+
 def file_hash(path):
     """SHA-256 hash of file contents."""
     try:
@@ -323,7 +344,7 @@ def apply_sync(template_dir, project_dir, report, backup_dir, template_version,
         dst = os.path.join(project_dir, rel_path.replace("/", os.sep))
         try:
             os.makedirs(os.path.dirname(dst), exist_ok=True)
-            shutil.copy2(src, dst)
+            copy_with_lf(src, dst)
             applied.append(f"CREATED: {rel_path} ({category})")
         except (OSError, IOError) as e:
             errors.append(f"CREATE FAILED: {rel_path} — {e}")
@@ -337,8 +358,8 @@ def apply_sync(template_dir, project_dir, report, backup_dir, template_version,
             # Backup first
             os.makedirs(os.path.dirname(bak), exist_ok=True)
             shutil.copy2(dst, bak)
-            # Then overwrite
-            shutil.copy2(src, dst)
+            # Then overwrite (LF-normalized for scripts)
+            copy_with_lf(src, dst)
             applied.append(f"UPDATED: {rel_path} ({category}, backup at {os.path.relpath(bak, project_dir)})")
         except (OSError, IOError) as e:
             errors.append(f"UPDATE FAILED: {rel_path} — {e}")
