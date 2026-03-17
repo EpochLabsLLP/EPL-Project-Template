@@ -11,16 +11,17 @@ WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 SESSIONS_DIR="$PROJECT_DIR/Sessions"
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
+PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
 echo "[SESSION START — MISSION ANCHOR]"
 
 # --- Auto-refresh Work Ledger via trace-check ---
 TRACE_STATUS=""
 if [ -f "$TRACE_SCRIPT" ]; then
-  TRACE_OUTPUT=$(PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
+  TRACE_OUTPUT=$(PYTHONIOENCODING=utf-8 $PYTHON "$TRACE_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
   TRACE_EXIT=$?
   # Regenerate the full ledger silently
-  PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  PYTHONIOENCODING=utf-8 $PYTHON "$TRACE_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
   if [ $TRACE_EXIT -eq 0 ]; then
     TRACE_STATUS="$TRACE_OUTPUT"
   elif [ $TRACE_EXIT -eq 1 ]; then

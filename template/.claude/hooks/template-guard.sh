@@ -11,12 +11,13 @@
 # Escape hatch: <!-- TEMPLATE_OVERRIDE: reason --> in content bypasses guard.
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
 # Capture stdin ONCE (JSON from Claude Code), then pipe to each extraction
 INPUT=$(cat)
 
-FILE_PATH=$(echo "$INPUT" | python "$HOOK_DIR/parse_hook_input.py" tool_input.file_path)
-CONTENT=$(echo "$INPUT" | python "$HOOK_DIR/parse_hook_input.py" tool_input.content)
+FILE_PATH=$(echo "$INPUT" | $PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.file_path)
+CONTENT=$(echo "$INPUT" | $PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.content)
 
 if [ -z "$FILE_PATH" ]; then
   exit 0

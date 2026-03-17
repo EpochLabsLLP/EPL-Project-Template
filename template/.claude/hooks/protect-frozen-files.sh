@@ -11,7 +11,8 @@
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
-FILE_PATH=$(python "$HOOK_DIR/parse_hook_input.py" tool_input.file_path)
+PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
+FILE_PATH=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.file_path)
 
 if [ -z "$FILE_PATH" ]; then
   exit 0
