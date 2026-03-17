@@ -8,6 +8,17 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.5.2] - 2026-03-17
+
+### Fixed
+- **Cross-platform hook compatibility (macOS):** All 9 shell hooks now use portable Python detection (`python3` → `python` fallback) instead of bare `python`. macOS ships only `python3`; bare `python` caused every hook to fail silently on Mac.
+- **CRLF line ending corruption:** Added `.gitattributes` forcing LF line endings for `*.sh` and `*.py` files. Windows `core.autocrlf=true` was injecting `\r` into shell scripts, causing `\r: command not found` errors on macOS/Linux.
+
+### Migration Notes
+- **From v2.5.1**: Run `/template-sync --apply`. Both fixes are infrastructure (auto-deployed). After sync, verify hooks work on macOS with `bash .claude/hooks/session-start.sh`.
+
+---
+
 ## [2.5.1] - 2026-03-16
 
 ### Changed

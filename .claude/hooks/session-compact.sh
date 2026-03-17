@@ -12,6 +12,7 @@ WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 SESSIONS_DIR="$PROJECT_DIR/Sessions"
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
+PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
 echo "[COMPACTION RECOVERY — FULL CONTEXT RELOAD]"
 echo "Context was just compacted. Pre-compaction memory is UNRELIABLE."
@@ -20,10 +21,10 @@ echo "Do NOT rely on memory for: file contents, line numbers, variable names, pa
 
 # --- Auto-refresh Work Ledger via trace-check ---
 if [ -f "$TRACE_SCRIPT" ]; then
-  TRACE_OUTPUT=$(PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
+  TRACE_OUTPUT=$(PYTHONIOENCODING=utf-8 $PYTHON "$TRACE_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
   TRACE_EXIT=$?
   # Regenerate the full ledger silently
-  PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
+  PYTHONIOENCODING=utf-8 $PYTHON "$TRACE_SCRIPT" "$PROJECT_DIR" > /dev/null 2>&1
   echo ""
   if [ $TRACE_EXIT -eq 0 ]; then
     echo "[$TRACE_OUTPUT]"

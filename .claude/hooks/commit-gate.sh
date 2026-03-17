@@ -18,7 +18,8 @@
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
-COMMAND=$(python "$HOOK_DIR/parse_hook_input.py" tool_input.command)
+PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
+COMMAND=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.command)
 
 if [ -z "$COMMAND" ]; then
   exit 0
@@ -37,7 +38,7 @@ WARNINGS=""
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
 
 if [ -f "$TRACE_SCRIPT" ]; then
-  TRACE_OUTPUT=$(PYTHONIOENCODING=utf-8 python "$TRACE_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
+  TRACE_OUTPUT=$(PYTHONIOENCODING=utf-8 $PYTHON "$TRACE_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
   TRACE_EXIT=$?
 
   if [ $TRACE_EXIT -eq 1 ]; then
