@@ -8,6 +8,21 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.5.4] - 2026-03-22
+
+### Fixed
+- **Code-gate Bash bypass closed:** `spec-gate.sh` now triggers on `PreToolUse → Bash` in addition to `Edit|Write`. Detects file-writing Bash commands (`cat >`, `echo >`, `tee`, `cp`, `mv`, `mkdir -p`) targeting code directories and enforces the same frozen-spec + active-WO requirements. Previously, agents could bypass governance entirely by using Bash heredocs/redirects instead of Claude Code's Edit/Write tools. Inspired by harness engineering principle: "Constraint > Documentation."
+- **Tier 0: Flip On the Lights** added to `problem-solving.md`: New mandatory first step — search project specs, epoch-search, decision records, and research docs BEFORE reasoning from scratch. Prevents agents from re-deriving what's already documented.
+
+### Changed
+- `spec-gate.sh` registered on both `Bash` and `Edit|Write` matchers in `settings.json`
+- `problem-solving.md` restructured: Tier 0 (search docs) → Tier 1 (read/trace) → Tier 2 (internal) → Tier 3 (external) → Tier 4 (escalate)
+
+### Migration Notes
+- **From v2.5.3**: Run `/template-sync --apply`. Both fixes are infrastructure (auto-deployed). The spec-gate now fires on Bash commands — agents can no longer use shell redirects to bypass governance.
+
+---
+
 ## [2.5.3] - 2026-03-17
 
 ### Added

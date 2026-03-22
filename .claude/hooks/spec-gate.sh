@@ -1,9 +1,14 @@
 #!/bin/bash
-# Hook: PreToolUse -> Edit|Write
+# Hook: PreToolUse -> Edit|Write AND PreToolUse -> Bash
 # CODE GATE: Blocks code file writes when governance requirements are not met.
 #
 # This is the automated enforcement of SDD principles:
 # "No code before frozen specs" and "No code without an active Work Order."
+# "Constraint > Documentation" (Harness Engineering principle)
+#
+# Triggers on TWO tool types:
+#   - Edit/Write: extracts file_path directly
+#   - Bash: detects file-writing commands (cat/echo/tee/cp/mv + redirect) targeting code dirs
 #
 # Checks:
 # 1. Is the target file in a code directory? (If not, always ALLOW)
@@ -19,11 +24,37 @@ HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
-# Parse the target file path from hook input
-FILE_PATH=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.file_path)
+# --- Determine file path from Edit/Write or Bash ---
+FILE_PATH=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.file_path 2>/dev/null)
 
 if [ -z "$FILE_PATH" ]; then
-  exit 0  # No file path = not a file write, allow
+  # Not an Edit/Write — check if it's a Bash command writing to code directories
+  COMMAND=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.command 2>/dev/null)
+
+  if [ -z "$COMMAND" ]; then
+    exit 0  # No file path and no command = nothing to gate
+  fi
+
+  # Detect file-writing Bash patterns targeting code directories
+  # Patterns: cat/echo/printf > path, tee path, cp/mv to path, heredoc > path, mkdir -p + write
+  CODE_DIR_PATTERN='(Code/|code/|src/|lib/|app/|packages/)'
+  WRITE_PATTERN='(>\s*|>>\s*|tee\s+|cp\s+.*\s|mv\s+.*\s)'
+
+  if echo "$COMMAND" | grep -qE "${WRITE_PATTERN}.*${CODE_DIR_PATTERN}|${CODE_DIR_PATTERN}.*${WRITE_PATTERN}"; then
+    # Bash command writes to a code directory — extract the path for governance check
+    FILE_PATH=$(echo "$COMMAND" | grep -oE "(Code|code|src|lib|app|packages)/[^ \"']*" | head -1)
+  fi
+
+  if [ -z "$FILE_PATH" ]; then
+    # Also catch mkdir -p in code dirs (precursor to writing)
+    if echo "$COMMAND" | grep -qE 'mkdir\s+(-p\s+)?.*'"$CODE_DIR_PATTERN"; then
+      FILE_PATH=$(echo "$COMMAND" | grep -oE "(Code|code|src|lib|app|packages)/[^ \"']*" | head -1)
+    fi
+  fi
+
+  if [ -z "$FILE_PATH" ]; then
+    exit 0  # Bash command doesn't write to code directories, allow
+  fi
 fi
 
 # --- Code directory check ---
