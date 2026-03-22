@@ -117,7 +117,7 @@ Invoke with `/skill-name <args>`.
 | alignment-check | `/alignment-check <module>` | Verify code matches spec with evidence |
 | dep-check | `/dep-check <dependency>` | Before adding any new dependency |
 | security-review | `/security-review <module>` | For modules handling sensitive data |
-| integration-logic | `/integration-logic <mod-a> <mod-b>` | Verify cross-module wiring |
+| integration-logic | `/integration-logic [mod-a mod-b \| all]` | Verify cross-module wiring (no args = all completed modules) |
 | pre-commit | `/pre-commit` | Before every git commit |
 | module-complete | `/module-complete <module>` | Before marking any module done |
 | trace-check | `/trace-check` | After creating/updating any spec or Work Order |
