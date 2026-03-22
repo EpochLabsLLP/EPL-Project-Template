@@ -47,5 +47,14 @@ build/
 # Logs
 *.log
 
+# Governance observability (machine-local event logs)
+.claude/observability/
+
+# Governance checkpoint (transient agent state)
+.claude/checkpoint.md
+
+# Template backup directory
+.template_backup/
+
 # Cross-project junction (created per-machine)
 _shared/

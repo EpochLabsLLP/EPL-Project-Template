@@ -17,6 +17,7 @@
 # Fail-open: If validate_traceability.py crashes or is missing, WARN but allow.
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/observe.sh" 2>/dev/null
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 COMMAND=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.command)
@@ -82,6 +83,7 @@ if [ "$BLOCKED" = true ]; then
   echo -e "$BLOCK_REASONS"
   echo ""
   echo "Fix the issues above before committing."
+  emit_event "gate.commit" "block" "reason=traceability_or_secrets"
   exit 2  # BLOCK
 fi
 
@@ -97,5 +99,6 @@ if [ -n "$SPEC_FILES" ]; then
   MSG="$MSG Spec/WO files modified — Work Ledger will be regenerated on next session start."
 fi
 
+emit_event "gate.commit" "allow"
 echo "{\"systemMessage\":\"$MSG Consider running /code-review if this completes a module.\"}"
 exit 0

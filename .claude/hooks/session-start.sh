@@ -6,6 +6,9 @@
 # This is the primary anti-drift mechanism. It forces every new session
 # to re-anchor to the project's status, traceability health, and next task.
 
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/observe.sh" 2>/dev/null
+source "$HOOK_DIR/checkpoint.sh" 2>/dev/null
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
@@ -13,7 +16,15 @@ SESSIONS_DIR="$PROJECT_DIR/Sessions"
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
+emit_event "session.start" "info"
 echo "[SESSION START — MISSION ANCHOR]"
+
+# --- Governance Metrics (from previous session events) ---
+AGG_SCRIPT="$HOOK_DIR/aggregate_events.py"
+if [ -f "$AGG_SCRIPT" ]; then
+  METRICS=$(CLAUDE_PROJECT_DIR="$PROJECT_DIR" $PYTHON "$AGG_SCRIPT" 2>/dev/null)
+  [ -n "$METRICS" ] && echo "[$METRICS]"
+fi
 
 # --- Auto-refresh Work Ledger via trace-check ---
 TRACE_STATUS=""
@@ -118,6 +129,9 @@ if [ -d "$INBOX_DIR" ]; then
     echo "Run /mail --check to read messages."
   fi
 fi
+
+# --- Checkpoint Recovery ---
+show_checkpoint "start"
 
 echo ""
 echo "Read the above context carefully before starting work."

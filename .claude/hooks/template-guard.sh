@@ -11,6 +11,7 @@
 # Escape hatch: <!-- TEMPLATE_OVERRIDE: reason --> in content bypasses guard.
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/observe.sh" 2>/dev/null
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
 # Capture stdin ONCE (JSON from Claude Code), then pipe to each extraction
@@ -100,6 +101,7 @@ if echo "$CONTENT" | grep -q "<!-- TEMPLATE_OVERRIDE:"; then
 fi
 
 # --- DENY: New governed file without template provenance ---
+emit_event "gate.template" "block" "file_path=$NORM_PATH"
 cat <<'DENY_JSON'
 {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"TEMPLATE GUARD: New spec documents must be created from templates.\nUse: /init-doc <type> [abbreviation]\nTypes: pvd, prd, brief, es, ux, bp, tp, wo, dr\nOr add <!-- TEMPLATE_OVERRIDE: reason --> to bypass."}}
 DENY_JSON
