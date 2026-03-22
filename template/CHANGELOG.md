@@ -8,6 +8,26 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.6.0] - 2026-03-22
+
+### Added
+- **Checkpoint/Resume system:** `.claude/checkpoint.md` — structured scratchpad written by agents at WO lifecycle transitions (IN-PROGRESS, milestones, quality gates, DONE). Session hooks auto-inject checkpoint state on crash/compact/start for context recovery. Follows Anthropic's `claude-progress.txt` harness pattern.
+- **Governance observability:** All 6 gate hooks now emit structured events to `.claude/observability/events.jsonl` (JSONL, <10ms per emit, fail-open). Session lifecycle events (start, resume, compact) also logged. `aggregate_events.py` computes compliance metrics displayed at session start.
+- **Shared hook utilities:** `observe.sh` (event emission) and `checkpoint.sh` (checkpoint reader) sourced by all hooks — DRY infrastructure.
+- **Checkpoint Protocol** added to `execution-protocol.md` — mandatory agent instruction for when/how to write checkpoints.
+- **Compliance metrics in session banner:** Session start displays `Compliance: 95% (19/20 allowed) | Blocks: 1 spec-gate | Compactions: 2`.
+
+### Changed
+- All 9 hooks (6 gate + 3 session) now source `observe.sh` for event emission
+- All 3 session hooks now source `checkpoint.sh` for checkpoint display
+- `.gitignore` updated: `.claude/observability/` and `.claude/checkpoint.md` are local-only (not committed)
+- CLAUDE.md template updated with Checkpoint/Resume and Observability under Governance Heartbeat
+
+### Migration Notes
+- **From v2.5.4**: Run `/template-sync --apply`. All new files are infrastructure (auto-deployed). Checkpoint writing is agent-driven (no new hooks in settings.json required). Observability events accumulate automatically from existing hook invocations.
+
+---
+
 ## [2.5.4] - 2026-03-22
 
 ### Fixed

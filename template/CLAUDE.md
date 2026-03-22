@@ -62,6 +62,8 @@ These run automatically — you do not invoke them:
 - **Commit Gate:** Every `git commit` validates traceability chains and scans for secrets. Broken chains or secrets = BLOCKED. Enforced by `commit-gate.sh`.
 - **Dependency Gate:** Package installs (`npm install <pkg>`, `pip install <pkg>`, etc.) require prior `/dep-check`. Enforced by `dep-gate.sh`.
 - **Session Heartbeat:** Work Ledger auto-refreshes via `validate_traceability.py` on every session start, resume, and compaction recovery.
+- **Checkpoint/Resume:** Write `.claude/checkpoint.md` at WO lifecycle transitions (see Checkpoint Protocol in execution-protocol.md). Session hooks auto-inject this on crash/compact for context recovery.
+- **Observability:** All gate decisions emit events to `.claude/observability/events.jsonl`. Compliance metrics display at session start. Events are local and `.gitignored`.
 
 See `/.claude/rules/execution-protocol.md` for the full mandatory workflow.
 
@@ -85,6 +87,14 @@ This project is connected to the Epoch Labs shared memory system via `.mcp.json`
 | **memory-db** | Local SQLite — `claude_memory.db`. Tables: `project_context`, `local_sessions`, `personal_memory`, `memory_entities`, `memory_relations`, `document_index`. Fast reads/writes. |
 | **supabase-dev** | Cloud PostgreSQL + pgvector. Mirrors local tables plus `content_embeddings` (semantic search) and `omi_conversations`. Use for cross-session queries, vector search, and the knowledge graph. |
 | **context7** | Library documentation lookups. Use before reaching for web search. |
+
+Additionally, a **global** MCP server (configured in `~/.claude.json`, available to ALL projects) provides cross-project semantic search:
+
+| Server | What It Provides |
+|--------|-----------------|
+| **epoch-search** | Local vector search (LanceDB) across all Epoch Labs projects. Tools: `search_knowledge` (semantic search across all docs/specs/code), `search_code` (code-specific search), `search_project` (search within a single project), `list_projects` (see indexed projects). ~28K+ chunks indexed, <1 second results. Re-indexes every 2 hours via Nerve Center. |
+
+**When to use search:** Prefer `epoch-search` over multi-file glob/grep chains when looking for specs, patterns, or context across projects. It's especially useful for cross-project spec lookups, finding prior art, and tracing concepts through the knowledge base.
 
 **When to use the memory system:**
 - **Starting a session:** Query `project_context` for this project's current state, open threads, and architecture notes.

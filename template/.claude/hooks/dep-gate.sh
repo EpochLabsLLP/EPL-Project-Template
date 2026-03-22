@@ -16,6 +16,7 @@
 #   2 = block (package install detected without /dep-check)
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/observe.sh" 2>/dev/null
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 COMMAND=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.command)
 
@@ -60,6 +61,7 @@ fi
 # npm/yarn/pnpm install/add with a package name
 if echo "$COMMAND" | grep -qE '(npm|yarn|pnpm)\s+(install|add|i)\s+[a-zA-Z@]'; then
   PACKAGE=$(echo "$COMMAND" | grep -oE '(npm|yarn|pnpm)\s+(install|add|i)\s+\S+' | awk '{print $NF}')
+  emit_event "gate.dep" "block" "package=$PACKAGE" "manager=npm/yarn/pnpm"
   echo "DEPENDENCY GATE BLOCKED: Package install detected."
   echo ""
   echo "Run /dep-check $PACKAGE before installing."
@@ -73,6 +75,7 @@ fi
 # pip install with a package name
 if echo "$COMMAND" | grep -qE 'pip3?\s+install\s+[a-zA-Z]'; then
   PACKAGE=$(echo "$COMMAND" | grep -oE 'pip3?\s+install\s+\S+' | awk '{print $NF}')
+  emit_event "gate.dep" "block" "package=$PACKAGE" "manager=pip"
   echo "DEPENDENCY GATE BLOCKED: Package install detected."
   echo ""
   echo "Run /dep-check $PACKAGE before installing."
@@ -86,6 +89,7 @@ fi
 # cargo add
 if echo "$COMMAND" | grep -qE 'cargo\s+add\s+[a-zA-Z]'; then
   PACKAGE=$(echo "$COMMAND" | grep -oE 'cargo\s+add\s+\S+' | awk '{print $NF}')
+  emit_event "gate.dep" "block" "package=$PACKAGE" "manager=cargo"
   echo "DEPENDENCY GATE BLOCKED: Package install detected."
   echo ""
   echo "Run /dep-check $PACKAGE before installing."
@@ -99,6 +103,7 @@ fi
 # go get
 if echo "$COMMAND" | grep -qE 'go\s+get\s+[a-zA-Z]'; then
   PACKAGE=$(echo "$COMMAND" | grep -oE 'go\s+get\s+\S+' | awk '{print $NF}')
+  emit_event "gate.dep" "block" "package=$PACKAGE" "manager=go"
   echo "DEPENDENCY GATE BLOCKED: Package install detected."
   echo ""
   echo "Run /dep-check $PACKAGE before installing."
@@ -110,4 +115,5 @@ if echo "$COMMAND" | grep -qE 'go\s+get\s+[a-zA-Z]'; then
 fi
 
 # Not a package install command
+emit_event "gate.dep" "allow"
 exit 0

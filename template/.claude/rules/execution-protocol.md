@@ -94,6 +94,61 @@ Before proceeding to the next wave, the current wave must pass its exit criteria
 
 Do not begin the next wave until the current wave passes. If blocked, escalate per the Risk Escalation Protocol.
 
+## Checkpoint Protocol
+
+The checkpoint file at `.claude/checkpoint.md` is your insurance against context loss. When a session crashes or compacts, the next version of you reads this file to understand what was happening. The checkpoint you write now is what saves your successor from starting blind.
+
+### When to Write/Update the Checkpoint
+
+Update `.claude/checkpoint.md` at these moments:
+
+1. **When setting a WO to IN-PROGRESS** — Write the initial checkpoint: WO ID, planned approach, files you expect to modify.
+2. **After completing a significant milestone** — A function, a module, a test suite passing. Update the "Completed Steps" and "Current Task" sections.
+3. **Before running quality gates** — Update to show Phase: VALIDATING, list which gates you're about to run.
+4. **After a quality gate passes or fails** — Update the Quality Gates checklist.
+5. **When a WO reaches DONE** — Clear the checkpoint by overwriting with: `<!-- No active work. Last WO: WO-X.Y.Z-A, completed YYYY-MM-DD -->`
+
+### Checkpoint Format
+
+```markdown
+<!-- EPL Checkpoint — Updated: {ISO timestamp} -->
+
+## Active Work Order
+- **WO ID:** WO-N.M.T-X
+- **WO File:** WorkOrders/WO-N.M.T-X.md
+- **Status:** IN-PROGRESS
+- **Phase:** {PLANNING | IMPLEMENTING | TESTING | FIXING | VALIDATING}
+
+## Files In Progress
+- `Code/path/to/file1.ts` — {brief description}
+- `Code/path/to/file2.ts` — {brief description}
+
+## Quality Gates
+- [ ] Gate 1: Interface contracts implemented
+- [ ] Gate 2: Unit tests cover public methods
+- [ ] Gate 3: No TODO/FIXME comments
+- [ ] Gate 4: No GPL dependencies
+- [ ] Gate 5: Builds without warnings
+- [ ] Gate 6: Performance meets targets
+- [ ] Gate 7: Integration points verified
+
+## Completed Steps
+- {What you've finished}
+
+## Current Task
+{What you're actively doing right now}
+
+## Remaining Work
+- {What's left}
+
+## Blockers
+{Any issues, or "None"}
+```
+
+### Why This Matters
+
+Session hooks read this file automatically on startup, resume, and compaction. The compact hook (the most critical recovery point) displays the full checkpoint with a staleness indicator. Without a checkpoint, the next agent starts blind and may duplicate or contradict your work.
+
 ## Traceability is Continuous
 
 - The Work Ledger auto-refreshes at every session start, resume, and compaction recovery.

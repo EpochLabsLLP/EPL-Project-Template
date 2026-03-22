@@ -10,6 +10,7 @@
 # (used during initial template construction only).
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/observe.sh" 2>/dev/null
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 FILE_PATH=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.file_path)
@@ -36,6 +37,7 @@ if [ "$TEMPLATE_BUILD_MODE" != "1" ]; then
 
   for PATTERN in "${GOVERNANCE_PATTERNS[@]}"; do
     if echo "$NORM_PATH" | grep -qF "$PATTERN"; then
+      emit_event "gate.frozen" "block" "file_path=$NORM_PATH" "reason=governance_infra"
       cat <<DENY_JSON
 {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"GOVERNANCE PROTECTION: $PATTERN is template infrastructure. Do not modify directly. Template updates propagate via /template-sync."}}
 DENY_JSON
@@ -88,10 +90,12 @@ fi
 # Check first 15 lines for FROZEN marker
 if head -15 "$CHECK_FILE" 2>/dev/null | grep -qi "FROZEN"; then
   BASENAME=$(basename "$CHECK_FILE")
+  emit_event "gate.frozen" "block" "file_path=$NORM_PATH" "reason=frozen_spec"
   cat <<DENY_JSON
 {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"FROZEN FILE: $BASENAME is a frozen spec. Must not be modified directly. Escalate to Nathan for change control."}}
 DENY_JSON
   exit 0
 fi
 
+emit_event "gate.frozen" "allow" "file_path=$NORM_PATH"
 exit 0

@@ -21,6 +21,7 @@
 # 5. All present, frozen, and active WO → exit 0 (ALLOW)
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/observe.sh" 2>/dev/null
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
@@ -184,7 +185,9 @@ if [ ${#MISSING[@]} -gt 0 ]; then
   echo "Required before writing code:"
   echo "  1. Freeze all required specs (PVD/Brief+PRD, Engineering Spec, Blueprint, Testing Plans)"
   echo "  2. Create a Work Order (/init-doc wo WO-N.M.T-X) and set status to IN-PROGRESS"
+  emit_event "gate.spec" "block" "file_path=$FILE_PATH" "missing=$MISSING_LIST"
   exit 2  # BLOCK
 fi
 
+emit_event "gate.spec" "allow" "file_path=$FILE_PATH"
 exit 0  # All specs frozen + active WO, allow

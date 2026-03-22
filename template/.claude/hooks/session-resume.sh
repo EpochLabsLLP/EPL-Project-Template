@@ -4,12 +4,16 @@
 # Lighter than startup — you already have conversation context, so this just
 # re-anchors to the Work Ledger and shows current work items.
 
+HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$HOOK_DIR/observe.sh" 2>/dev/null
+source "$HOOK_DIR/checkpoint.sh" 2>/dev/null
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
+emit_event "session.resume" "info"
 echo "[SESSION RESUMED — RE-ANCHORING]"
 
 # --- Auto-refresh Work Ledger via trace-check ---
@@ -68,3 +72,6 @@ if [ -d "$INBOX_DIR" ]; then
     echo "Run /mail --check to read messages."
   fi
 fi
+
+# --- Checkpoint Recovery ---
+show_checkpoint "resume"
