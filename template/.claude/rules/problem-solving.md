@@ -7,6 +7,24 @@
 
 # Problem-Solving Protocol
 
+## Tier 0: Flip On the Lights (ALWAYS do this first)
+
+Before reasoning from scratch, **check if the answer already exists in the project.**
+
+Your instinct will be to reason from context, grep through code, or figure things out from first principles. Resist that instinct. This project has specs, research docs, decision records, and session notes that often contain the exact answer you're looking for. Searching them first is like flipping on the lights in a room — don't fumble around with a flashlight when the switch is right there.
+
+**Do this before every non-trivial question:**
+1. **Search project specs** — `Specs/` folder, PVD, Engineering Spec, Blueprint. Use `/spec-lookup <module>` if available.
+2. **Search with epoch-search** — `epoch_search_project` scoped to this project finds answers across all docs in seconds.
+3. **Check decision records and session notes** — `Sessions/`, Decision Records, Gap Tracker. Past decisions explain current constraints.
+4. **Check research docs** — `Research/` folder. Prior analysis may already cover your question.
+
+This is not optional. This is not "when you're stuck." This is **every time** you encounter a question about how something should work, why a decision was made, what the interface contract is, or how modules connect. The answer is almost always already written down.
+
+*Intent: The most expensive mistake an agent makes is re-deriving from first principles what's already documented. Specs exist to be read, not rediscovered.*
+
+---
+
 ## Rules
 - Follow tiers in order. Do NOT skip to a higher tier.
 - **Maximum 3 actions per tier.** If 3 actions at a tier don't resolve it, escalate.
