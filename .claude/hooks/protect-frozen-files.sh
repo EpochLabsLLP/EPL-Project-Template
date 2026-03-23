@@ -88,7 +88,7 @@ else
 fi
 
 # Check first 15 lines for FROZEN marker
-if head -15 "$CHECK_FILE" 2>/dev/null | grep -qi "FROZEN"; then
+if head -25 "$CHECK_FILE" 2>/dev/null | grep -qi "FROZEN"; then
   BASENAME=$(basename "$CHECK_FILE")
   emit_event "gate.frozen" "block" "file_path=$NORM_PATH" "reason=frozen_spec"
   cat <<DENY_JSON

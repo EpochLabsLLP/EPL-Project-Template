@@ -23,7 +23,7 @@ def extract(data, path):
 
 
 def check_frozen(file_path):
-    """Check if a file has FROZEN status in its first 15 lines.
+    """Check if a file has FROZEN status in its first 25 lines.
 
     Checks for ACTUAL status declarations, not just mentions of the word:
       1. Explicit marker: <!-- STATUS: FROZEN -->
@@ -51,7 +51,7 @@ def check_frozen(file_path):
     try:
         with open(file_path, "r", encoding="utf-8", errors="replace") as f:
             for i, line in enumerate(f):
-                if i >= 15:
+                if i >= 25:
                     break
                 for pattern in frozen_patterns:
                     if re.search(pattern, line, re.IGNORECASE):
