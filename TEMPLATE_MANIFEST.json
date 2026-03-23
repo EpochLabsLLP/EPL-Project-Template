@@ -156,6 +156,7 @@
         ".claude/skills/trace-check/scripts/validate_traceability.py",
         ".claude/skills/unlock-frozen/SKILL.md",
         ".claude/skills/mail/SKILL.md",
+        ".claude/skills/rename-abbreviation/SKILL.md",
         ".gitattributes",
         "template_sync.py",
         "TEMPLATE_MANIFEST.json",
