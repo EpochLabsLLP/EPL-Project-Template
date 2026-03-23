@@ -85,7 +85,7 @@ HAS_PRD=false
 for f in "$PROJECT_DIR"/Specs/*PVD*; do
   [ -f "$f" ] || continue
   if echo "$f" | grep -qi "TEMPLATE"; then continue; fi
-  if head -15 "$f" | grep -q "FROZEN"; then
+  if head -25 "$f" | grep -q "FROZEN"; then
     HAS_PVD=true
     break
   fi
@@ -96,7 +96,7 @@ if [ "$HAS_PVD" = false ]; then
   for f in "$PROJECT_DIR"/Specs/*Product_Brief*; do
     [ -f "$f" ] || continue
     if echo "$f" | grep -qi "TEMPLATE"; then continue; fi
-    if head -15 "$f" | grep -q "FROZEN"; then
+    if head -25 "$f" | grep -q "FROZEN"; then
       HAS_BRIEF=true
       break
     fi
@@ -104,7 +104,7 @@ if [ "$HAS_PVD" = false ]; then
   for f in "$PROJECT_DIR"/Specs/*PRD*; do
     [ -f "$f" ] || continue
     if echo "$f" | grep -qi "TEMPLATE"; then continue; fi
-    if head -15 "$f" | grep -q "FROZEN"; then
+    if head -25 "$f" | grep -q "FROZEN"; then
       HAS_PRD=true
       break
     fi
@@ -120,7 +120,7 @@ HAS_ES=false
 for f in "$PROJECT_DIR"/Specs/*Engineering_Spec*; do
   [ -f "$f" ] || continue
   if echo "$f" | grep -qi "TEMPLATE"; then continue; fi
-  if head -15 "$f" | grep -q "FROZEN"; then
+  if head -25 "$f" | grep -q "FROZEN"; then
     HAS_ES=true
     break
   fi
@@ -132,7 +132,7 @@ HAS_BP=false
 for f in "$PROJECT_DIR"/Specs/*Blueprint*; do
   [ -f "$f" ] || continue
   if echo "$f" | grep -qi "TEMPLATE"; then continue; fi
-  if head -15 "$f" | grep -q "FROZEN"; then
+  if head -25 "$f" | grep -q "FROZEN"; then
     HAS_BP=true
     break
   fi
@@ -144,7 +144,7 @@ HAS_TP=false
 for f in "$PROJECT_DIR"/Testing/*Testing_Plans*; do
   [ -f "$f" ] || continue
   if echo "$f" | grep -qi "TEMPLATE"; then continue; fi
-  if head -15 "$f" | grep -q "FROZEN"; then
+  if head -25 "$f" | grep -q "FROZEN"; then
     HAS_TP=true
     break
   fi
