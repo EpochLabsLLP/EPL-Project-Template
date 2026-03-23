@@ -1,0 +1,39 @@
+{
+  "_comment": "Phase-aware tool restrictions. 'advisory' produces warning systemMessage. 'restricted' will produce hard blocks in v2.8.0 (advisory-only in v2.7.0 MVP).",
+  "SPEC": {
+    "advisory": [
+      {"pattern": "Edit:Code/", "message": "Code editing is not typical during spec authoring. Freeze specs and create a Work Order first."},
+      {"pattern": "Write:Code/", "message": "Code creation is not typical during spec authoring. Freeze specs and create a Work Order first."},
+      {"pattern": "Bash:write-to-code", "message": "Code file creation via Bash is not typical during spec authoring."},
+      {"pattern": "Skill:code-review", "message": "Code review is for implementation phase, not spec authoring."},
+      {"pattern": "Skill:module-complete", "message": "Module completion is for validation phase, not spec authoring."},
+      {"pattern": "Skill:dep-check", "message": "Dependency checking is for implementation phase."}
+    ]
+  },
+  "PLANNING": {
+    "advisory": [
+      {"pattern": "Edit:Code/", "message": "Code editing during planning phase. Create a Work Order and set to IN-PROGRESS first."},
+      {"pattern": "Write:Code/", "message": "Code creation during planning phase. Create a Work Order and set to IN-PROGRESS first."},
+      {"pattern": "Bash:write-to-code", "message": "Code file creation via Bash during planning phase."}
+    ]
+  },
+  "IMPLEMENTATION": {
+    "advisory": [
+      {"pattern": "Skill:init-doc", "message": "Creating new spec documents during implementation may indicate scope change. See change-control.md."},
+      {"pattern": "Edit:Specs/", "message": "Editing specs during implementation may indicate scope change. See change-control.md."},
+      {"pattern": "Write:Specs/", "message": "Creating specs during implementation may indicate scope change. See change-control.md."}
+    ]
+  },
+  "VALIDATION": {
+    "advisory": [
+      {"pattern": "Edit:Code/", "message": "Code editing during validation. If a fix is needed, set the WO back to IN-PROGRESS first."},
+      {"pattern": "Write:Code/", "message": "Code creation during validation. If new code is needed, set the WO back to IN-PROGRESS first."},
+      {"pattern": "Bash:write-to-code", "message": "Code file creation via Bash during validation phase."},
+      {"pattern": "Skill:init-doc", "message": "Creating new spec documents during validation may indicate scope change."},
+      {"pattern": "Edit:Specs/", "message": "Editing specs during validation. See change-control.md."}
+    ]
+  },
+  "MAINTENANCE": {
+    "advisory": []
+  }
+}

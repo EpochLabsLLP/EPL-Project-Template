@@ -8,6 +8,23 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.7.0] - 2026-03-23
+
+### Added
+- **Dynamic Tool Scoping (advisory):** Phase-aware tool guidance system. `detect_phase.py` derives the current SDD phase (SPEC/PLANNING/IMPLEMENTATION/VALIDATION/MAINTENANCE) from project state — no explicit marker needed. `phase-scope.sh` hook fires on all Bash/Edit/Write tool calls and outputs advisory `systemMessage` when a tool is unusual for the current phase (e.g., code editing during spec authoring, spec creation during implementation). Restriction table in `.claude/phase-restrictions.json` (scaffolding — project-customizable).
+- **Phase banner in session start:** Session-start hook now displays `[CURRENT PHASE: IMPLEMENTATION]` (or whatever the detected phase is) at the top of the session context.
+- `/integration-logic` upgraded: now defaults to checking ALL completed modules when invoked without arguments (previously required two specific module names).
+
+### Changed
+- `session-start.sh` displays detected phase
+- `phase-scope.sh` registered on `Bash|Edit|Write` matcher
+- `TEMPLATE_MANIFEST.json` updated with new infrastructure files and hook registrations
+
+### Migration Notes
+- **From v2.6.0**: Run `/template-sync --apply`. Phase scoping is advisory-only (no tool calls blocked). Projects can customize `.claude/phase-restrictions.json` to adjust advisories for their workflow. `detect_phase.py` caches results for 5 seconds to minimize overhead.
+
+---
+
 ## [2.6.0] - 2026-03-22
 
 ### Added

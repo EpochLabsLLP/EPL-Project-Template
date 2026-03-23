@@ -19,6 +19,13 @@ PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo
 emit_event "session.start" "info"
 echo "[SESSION START — MISSION ANCHOR]"
 
+# --- Current Phase Detection ---
+PHASE_SCRIPT="$HOOK_DIR/detect_phase.py"
+if [ -f "$PHASE_SCRIPT" ]; then
+  PHASE=$($PYTHON "$PHASE_SCRIPT" "$PROJECT_DIR" 2>/dev/null)
+  [ -n "$PHASE" ] && [ "$PHASE" != "UNKNOWN" ] && echo "[CURRENT PHASE: $PHASE]"
+fi
+
 # --- Governance Metrics (from previous session events) ---
 AGG_SCRIPT="$HOOK_DIR/aggregate_events.py"
 if [ -f "$AGG_SCRIPT" ]; then
