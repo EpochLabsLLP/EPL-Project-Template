@@ -198,11 +198,68 @@ type AuthError = 'INVALID_CREDENTIALS' | 'ACCOUNT_LOCKED' | 'RATE_LIMITED';
 
 ## 11. Security Model
 
-{Authentication mechanism, authorization model, data protection, secrets management, input validation strategy, OWASP considerations.}
+{Authentication mechanism, authorization model, data protection, secrets management, input validation strategy.}
+
+### OWASP Threat Mapping
+
+{Map your application's attack surface to OWASP Top 10 categories. For each relevant threat, document the mitigation strategy. Skip categories that don't apply (e.g., injection for a CLI tool with no user input).}
+
+| OWASP Category | Applies? | Attack Surface | Mitigation |
+|---------------|----------|---------------|------------|
+| A01: Broken Access Control | {Yes/No} | {where} | {how mitigated} |
+| A02: Cryptographic Failures | {Yes/No} | {where} | {how mitigated} |
+| A03: Injection | {Yes/No} | {where} | {how mitigated} |
+| A04: Insecure Design | {Yes/No} | {where} | {how mitigated} |
+| A05: Security Misconfiguration | {Yes/No} | {where} | {how mitigated} |
+| A06: Vulnerable Components | {Yes/No} | {where} | {how mitigated} |
+| A07: Auth Failures | {Yes/No} | {where} | {how mitigated} |
+| A08: Data Integrity Failures | {Yes/No} | {where} | {how mitigated} |
+| A09: Logging & Monitoring | {Yes/No} | {where} | {how mitigated} |
+| A10: SSRF | {Yes/No} | {where} | {how mitigated} |
 
 ---
 
-## 12. Error Handling & Observability
+## 12. Harness / Workflow Architecture
+
+<!-- CONDITIONAL: Include this section if the project uses multi-step agent workflows,
+     EPOE Gloves, or any form of automated pipeline that needs reliability guarantees.
+     Skip for simple UI-only projects with no agent orchestration.
+     See _SharedCore/Harness_Engineering/ for patterns and ownership contracts. -->
+
+{If this project includes or consumes harness infrastructure (agent workflows, EPOE Gloves, automated pipelines), define:}
+
+### Harness Layers Owned
+
+{Which harness layers does this project own? Reference the Harness Ownership Contract at `_shared/Harness_Engineering/Harness_Ownership_Contract.md`.}
+
+| Layer | This Project's Role | Implementation Approach |
+|-------|-------------------|----------------------|
+| {Workflow Definitions} | {Owner / Consumer / N/A} | {approach} |
+| {Structured I/O} | {Owner / Consumer / N/A} | {approach} |
+| {Checkpoint/Resume} | {Owner / Consumer / N/A} | {approach} |
+| {Observability} | {Owner / Consumer / N/A} | {approach} |
+| {Human-in-the-Loop} | {Owner / Consumer / N/A} | {approach} |
+| {Security/Sandbox} | {Owner / Consumer / N/A} | {approach} |
+
+### EPOE Integration
+
+{If this project consumes EPOE Gloves or the harness engine:}
+- **EPOE API endpoint:** {URL or internal path}
+- **Gloves consumed:** {list of Glove configs used}
+- **Harness workflow configs:** {location of workflow definitions}
+- **Schema registry:** {location of Zod/Pydantic schemas for structured I/O}
+
+### Reliability Targets
+
+{Based on March of Nines math — what per-step and end-to-end reliability is required?}
+
+| Workflow | Steps | Per-Step Target | E2E Target | Mitigation |
+|----------|-------|----------------|------------|------------|
+| {workflow name} | {N} | {99.X%} | {target} | {checkpoint, retry, human gate} |
+
+---
+
+## 13. Error Handling & Observability
 
 ### Error Strategy
 {How errors propagate across module boundaries. Error categorization (retryable vs fatal). User-facing error messages vs internal logging.}
