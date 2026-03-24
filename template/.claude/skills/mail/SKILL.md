@@ -62,9 +62,13 @@ Gather the following (infer from context when possible, ask Nathan if unclear):
 1. Create the target inbox directory if it doesn't exist:
    `{target_project_path}/.claude/inbox/`
 2. Generate the filename:
-   `YYYY-MM-DD_HHMMSS_{from_abbreviation}_{subject_slug}.md`
-   - `from_abbreviation`: This project's abbreviation (from registry, or ask Nathan)
-   - `subject_slug`: Lowercase, hyphens, max 40 chars
+   `YYYY-MM-DD_HHMMSS_{from_abbreviation}-{env}_{subject_slug}.md`
+   - `from_abbreviation`: This project's abbreviation (from registry, or ask Nathan). **MUST be lowercase.**
+   - `env`: `cli` if running in `--print` mode (CLI heartbeat), `vsc` if running in VS Code. Detect by checking if the session is interactive.
+   - `subject_slug`: **Lowercase**, hyphens only (no underscores), max 40 chars
+   - **ALL components MUST be lowercase.** Uppercase in filenames causes Syncthing case collisions across Mac/Windows.
+   - Example: `2026-03-25_103000_pm-cli_phase-n-start-signal.md`
+   - Example: `2026-03-25_143000_epoe-vsc_status-beacon.md`
 3. Write the message file:
 
 ```markdown
