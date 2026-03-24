@@ -67,6 +67,19 @@ These run automatically — you do not invoke them:
 
 See `/.claude/rules/execution-protocol.md` for the full mandatory workflow.
 
+## Multi-Instance Awareness
+
+You may not be the only Claude instance working in this repo. CLI heartbeats and VS Code sessions share this codebase via the same filesystem (Syncthing-synced across machines).
+
+- **CHECK `.claude/stop-work.md`** before starting any work. If it exists, HALT — read the reason, do not proceed.
+- **READ `.claude/progress.log`** on startup — understand what other instances did recently.
+- **Your instance ID** is assigned at session start (format: `{agent}-{env}-{YYYYMMDD}-{HHMM}`). Stamp it on progress log entries, session summaries, and any files you create.
+- If you see files changed that you didn't change: **read progress.log first**, do NOT assume compaction occurred.
+- **NEVER** resume another instance's checkpoint — it may still be running.
+- **NEVER** modify a Work Order assigned to another instance.
+- If you find a critical issue: **create `.claude/stop-work.md` immediately** and notify PM via `/mail`.
+- **Log to progress.log** at work-unit boundaries: WO completion, gate passed, session start/end, or when significant unstructured work accumulates (5+ files edited, decisions made).
+
 ## Cross-Project Integration
 - **_shared/** — Junction to `_SharedCore`. Check before writing code that touches cross-project boundaries.
 

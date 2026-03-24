@@ -9,6 +9,8 @@
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$HOOK_DIR/observe.sh" 2>/dev/null
 source "$HOOK_DIR/checkpoint.sh" 2>/dev/null
+source "$HOOK_DIR/instance-id.sh" 2>/dev/null
+source "$HOOK_DIR/progress-log.sh" 2>/dev/null
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
@@ -16,8 +18,28 @@ SESSIONS_DIR="$PROJECT_DIR/Sessions"
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
-emit_event "session.start" "info"
+# --- Instance Identity (generate fresh ID for this session) ---
+INSTANCE_ID=$(generate_instance_id 2>/dev/null || echo "unknown")
+
+emit_event "session.start" "info" "instance_id=$INSTANCE_ID"
+
+# --- Stop Work Check (FIRST — before any other logic) ---
+STOP_WORK="$PROJECT_DIR/.claude/stop-work.md"
+if [ -f "$STOP_WORK" ]; then
+  echo "[STOP WORK ORDER — ALL WORK HALTED]"
+  echo ""
+  cat "$STOP_WORK"
+  echo ""
+  echo "DO NOT proceed with any work. Address the stop-work order first."
+  echo "Only Nathan or the issuing instance can clear this file."
+  echo ""
+  echo "Read the above context carefully before starting work."
+  log_progress "SESSION START | Stop-work order active — halted"
+  exit 0
+fi
+
 echo "[SESSION START — MISSION ANCHOR]"
+echo "[INSTANCE: $INSTANCE_ID]"
 
 # --- Current Phase Detection ---
 PHASE_SCRIPT="$HOOK_DIR/detect_phase.py"
@@ -137,8 +159,14 @@ if [ -d "$INBOX_DIR" ]; then
   fi
 fi
 
+# --- Progress Log (cross-instance awareness) ---
+show_recent_progress 20
+
 # --- Checkpoint Recovery ---
 show_checkpoint "start"
+
+# --- Log session start ---
+log_progress "SESSION START | Phase: ${PHASE:-UNKNOWN} | Mail: ${MAIL_COUNT:-0}"
 
 echo ""
 echo "Read the above context carefully before starting work."

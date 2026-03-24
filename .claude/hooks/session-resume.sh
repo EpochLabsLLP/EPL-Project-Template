@@ -7,14 +7,33 @@
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$HOOK_DIR/observe.sh" 2>/dev/null
 source "$HOOK_DIR/checkpoint.sh" 2>/dev/null
+source "$HOOK_DIR/instance-id.sh" 2>/dev/null
+source "$HOOK_DIR/progress-log.sh" 2>/dev/null
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
-emit_event "session.resume" "info"
+# Read existing instance ID (don't regenerate on resume — same session)
+INSTANCE_ID=$(get_instance_id 2>/dev/null || echo "unknown")
+
+emit_event "session.resume" "info" "instance_id=$INSTANCE_ID"
+
+# --- Stop Work Check ---
+STOP_WORK="$PROJECT_DIR/.claude/stop-work.md"
+if [ -f "$STOP_WORK" ]; then
+  echo "[STOP WORK ORDER — ALL WORK HALTED]"
+  echo ""
+  cat "$STOP_WORK"
+  echo ""
+  echo "DO NOT proceed with any work. Address the stop-work order first."
+  log_progress "SESSION RESUME | Stop-work order active — halted"
+  exit 0
+fi
+
 echo "[SESSION RESUMED — RE-ANCHORING]"
+echo "[INSTANCE: $INSTANCE_ID]"
 
 # --- Auto-refresh Work Ledger via trace-check ---
 if [ -f "$TRACE_SCRIPT" ]; then
@@ -72,6 +91,9 @@ if [ -d "$INBOX_DIR" ]; then
     echo "Run /mail --check to read messages."
   fi
 fi
+
+# --- Progress Log (cross-instance awareness) ---
+show_recent_progress 10
 
 # --- Checkpoint Recovery ---
 show_checkpoint "resume"
