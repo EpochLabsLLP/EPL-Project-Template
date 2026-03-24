@@ -8,6 +8,29 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.8.0] - 2026-03-23
+
+### Added
+- **Multi-Instance Collaboration Protocol (foundation):** Support for multiple Claude instances (VS Code + CLI heartbeats) working in the same repo without conflicts.
+  - **Instance Identity:** `instance-id.sh` generates session-unique stamps (`{agent}-{env}-{YYYYMMDD}-{HHMM}`) at session start. Used to fingerprint progress log entries, session summaries, and created files. Detects VS Code vs CLI automatically.
+  - **Progress Log:** `progress-log.sh` provides append-only activity journal at `.claude/progress.log`. Instance-stamped entries enable cross-session and cross-instance awareness. Session hooks display recent entries on startup/resume/compact.
+  - **Stop Work Order:** All three session hooks now check `.claude/stop-work.md` FIRST. If present, the session halts immediately with the stop reason displayed. Emergency brake for critical issues discovered by any instance.
+  - **Multi-Instance Awareness section** added to template CLAUDE.md — rules for checkpoint scoping, progress logging, and conflict avoidance.
+  - **Project abbreviation file:** `.claude/project-abbreviation` (optional) sets the agent name prefix for instance IDs.
+
+### Changed
+- All 3 session hooks now source `instance-id.sh` and `progress-log.sh`
+- `session-start.sh` generates instance ID, checks stop-work, displays progress log, logs session start
+- `session-resume.sh` and `session-compact.sh` check stop-work and display progress log
+- Observability events now include `instance_id` metadata
+- `.gitignore` updated: `.claude/instance-id` and `.claude/progress.log` are local-only
+- `TEMPLATE_MANIFEST.json` updated with new infrastructure files
+
+### Migration Notes
+- **From v2.7.0**: Run `/template-sync --apply`. All changes are additive and backward-compatible. Stop-work and progress log features activate automatically. To set your project's instance ID prefix, create `.claude/project-abbreviation` with your abbreviation (e.g., `atlas`). Without it, the directory name is used.
+
+---
+
 ## [2.7.0] - 2026-03-23
 
 ### Added

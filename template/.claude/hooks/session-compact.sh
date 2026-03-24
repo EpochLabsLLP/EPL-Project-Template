@@ -10,6 +10,8 @@
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$HOOK_DIR/observe.sh" 2>/dev/null
 source "$HOOK_DIR/checkpoint.sh" 2>/dev/null
+source "$HOOK_DIR/instance-id.sh" 2>/dev/null
+source "$HOOK_DIR/progress-log.sh" 2>/dev/null
 PROJECT_DIR="$CLAUDE_PROJECT_DIR"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
@@ -17,8 +19,25 @@ SESSIONS_DIR="$PROJECT_DIR/Sessions"
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
-emit_event "session.compact" "info"
+# Read existing instance ID (don't regenerate on compact — same session)
+INSTANCE_ID=$(get_instance_id 2>/dev/null || echo "unknown")
+
+emit_event "session.compact" "info" "instance_id=$INSTANCE_ID"
+
+# --- Stop Work Check ---
+STOP_WORK="$PROJECT_DIR/.claude/stop-work.md"
+if [ -f "$STOP_WORK" ]; then
+  echo "[STOP WORK ORDER — ALL WORK HALTED]"
+  echo ""
+  cat "$STOP_WORK"
+  echo ""
+  echo "DO NOT proceed with any work. Address the stop-work order first."
+  log_progress "SESSION COMPACT | Stop-work order active — halted"
+  exit 0
+fi
+
 echo "[COMPACTION RECOVERY — FULL CONTEXT RELOAD]"
+echo "[INSTANCE: $INSTANCE_ID]"
 echo "Context was just compacted. Pre-compaction memory is UNRELIABLE."
 echo "You MUST re-read any files you were working on before making edits."
 echo "Do NOT rely on memory for: file contents, line numbers, variable names, partial implementations."
@@ -93,8 +112,13 @@ if [ -d "$INBOX_DIR" ]; then
   fi
 fi
 
+# --- Progress Log (cross-instance awareness — full history after compact) ---
+show_recent_progress 20
+
 # --- Checkpoint Recovery (highest value here — agent lost all context) ---
 show_checkpoint "compact"
+
+log_progress "SESSION COMPACT | Context compacted — re-anchoring"
 
 echo ""
 echo "CRITICAL: Re-read source files before making any edits."

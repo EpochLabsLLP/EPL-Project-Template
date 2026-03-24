@@ -53,6 +53,10 @@ build/
 # Governance checkpoint (transient agent state)
 .claude/checkpoint.md
 
+# Multi-instance collaboration (machine-local state)
+.claude/instance-id
+.claude/progress.log
+
 # Template backup directory
 .template_backup/
 
