@@ -24,17 +24,34 @@ import glob as globmod
 from datetime import datetime
 
 
-LF_EXTENSIONS = {".sh", ".py"}
+TEXT_EXTENSIONS = {
+    ".sh", ".py", ".md", ".json", ".txt", ".yml", ".yaml",
+    ".toml", ".cfg", ".ini", ".gitattributes", ".gitignore",
+    ".env", ".example", ".csv", ".html", ".css", ".js", ".ts",
+    ".jsx", ".tsx", ".xml", ".svg",
+}
+
+# Files with no extension that should also be normalized
+TEXT_FILENAMES = {".gitattributes", ".gitignore", ".editorconfig"}
+
+
+def _is_text_file(path):
+    """Check if a file should have LF line endings enforced."""
+    basename = os.path.basename(path).lower()
+    if basename in TEXT_FILENAMES:
+        return True
+    _, ext = os.path.splitext(path)
+    return ext.lower() in TEXT_EXTENSIONS
 
 
 def copy_with_lf(src, dst):
-    """Copy file, normalizing CRLF→LF for shell/Python files.
+    """Copy file, normalizing CRLF→LF for all text files.
 
-    Ensures scripts work on macOS/Linux even when the source
-    working tree has CRLF (Windows core.autocrlf=true).
+    Ensures scripts and configs work on macOS/Linux even when the source
+    working tree has CRLF (Windows core.autocrlf=true, Syncthing sync).
+    Binary files are copied unchanged.
     """
-    _, ext = os.path.splitext(src)
-    if ext.lower() in LF_EXTENSIONS:
+    if _is_text_file(src):
         with open(src, "rb") as f:
             content = f.read()
         content = content.replace(b"\r\n", b"\n")
@@ -46,16 +63,16 @@ def copy_with_lf(src, dst):
 
 
 def file_hash(path):
-    """SHA-256 hash of file contents, normalized for .sh/.py files.
+    """SHA-256 hash of file contents, normalized for all text files.
 
-    For script files, CRLF is stripped before hashing so that a
-    CRLF source and an LF dest are correctly detected as drifted.
+    For text files, CRLF is stripped before hashing so that a
+    CRLF source and an LF dest are correctly detected as identical
+    (or drifted for content-only differences, not line endings).
     """
     try:
         with open(path, "rb") as f:
             content = f.read()
-        _, ext = os.path.splitext(path)
-        if ext.lower() in LF_EXTENSIONS:
+        if _is_text_file(path):
             content = content.replace(b"\r\n", b"\n")
         return hashlib.sha256(content).hexdigest()
     except (OSError, IOError):
@@ -380,6 +397,33 @@ def apply_sync(template_dir, project_dir, report, backup_dir, template_version,
         applied.append(f"VERSION: Updated .template_version to {template_version}")
     except (OSError, IOError) as e:
         errors.append(f"VERSION UPDATE FAILED: {e}")
+
+    # Post-apply LF enforcement sweep — fix any text files in the project that
+    # still have CRLF, regardless of whether they were "up to date" by hash.
+    # This catches files that matched content-wise but had CRLF in the project copy.
+    all_managed_files = set()
+    for category_name, category_data in load_manifest(template_dir).get("categories", {}).items():
+        if category_name in ("generated", "scaffolding", "managed_scaffolding"):
+            continue
+        for rel_path in expand_files(category_data.get("files", []), template_dir):
+            all_managed_files.add(rel_path)
+
+    lf_fixed = 0
+    for rel_path in all_managed_files:
+        dst = os.path.join(project_dir, rel_path.replace("/", os.sep))
+        if os.path.isfile(dst) and _is_text_file(dst):
+            try:
+                with open(dst, "rb") as f:
+                    content = f.read()
+                if b"\r\n" in content:
+                    content = content.replace(b"\r\n", b"\n")
+                    with open(dst, "wb") as f:
+                        f.write(content)
+                    lf_fixed += 1
+            except (OSError, IOError):
+                pass
+    if lf_fixed > 0:
+        applied.append(f"LF ENFORCED: Normalized {lf_fixed} file(s) from CRLF to LF")
 
     # Apply settings.json hook merge
     if merged_settings is not None:
