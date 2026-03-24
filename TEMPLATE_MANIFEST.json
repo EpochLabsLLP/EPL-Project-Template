@@ -1,5 +1,5 @@
 {
-  "template_version": "2.8.0",
+  "template_version": "2.8.1",
   "template_repo": "Epoch Labs Project Template/_ProjectTemplate",
   "description": "Epoch Labs project template manifest. Declares file ownership for template sync.",
   "claude_md_structure_version": "2.2.0",
@@ -159,6 +159,7 @@
         ".claude/skills/unlock-frozen/SKILL.md",
         ".claude/skills/mail/SKILL.md",
         ".claude/skills/rename-abbreviation/SKILL.md",
+        ".claude/skills/work/SKILL.md",
         ".gitattributes",
         "template_sync.py",
         "TEMPLATE_MANIFEST.json",
