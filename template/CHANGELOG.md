@@ -8,6 +8,20 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.8.1] - 2026-03-24
+
+### Added
+- **`/work` skill** — Unified autonomous work pickup and execution sequence. 8-step process: check stop-work, read progress log, check checkpoint, read Work Ledger, evaluate in-progress WOs, pick next WO, execute full lifecycle, escalate if blocked. Designed for unattended CLI heartbeats — agents proceed without asking for approval. Also works in interactive VS Code sessions.
+
+### Changed
+- Template CLAUDE.md skill table now includes `/work`
+- `TEMPLATE_MANIFEST.json` updated with `work/SKILL.md`
+
+### Migration Notes
+- **From v2.8.0**: Run `/template-sync --apply`. Purely additive — adds the `/work` skill directory and updates the skill table reference.
+
+---
+
 ## [2.8.0] - 2026-03-23
 
 ### Added
