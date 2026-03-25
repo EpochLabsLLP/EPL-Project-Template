@@ -159,6 +159,15 @@ if [ -d "$INBOX_DIR" ]; then
   fi
 fi
 
+# --- Mail Ledger: Pending Actions ---
+MAIL_LEDGER="$PROJECT_DIR/.claude/mail-ledger.md"
+if [ -f "$MAIL_LEDGER" ]; then
+  PENDING_COUNT=$(grep -c "status:pending" "$MAIL_LEDGER" 2>/dev/null || echo 0)
+  if [ "$PENDING_COUNT" -gt 0 ]; then
+    echo "[MAIL LEDGER: $PENDING_COUNT message(s) pending action]"
+  fi
+fi
+
 # --- Progress Log (cross-instance awareness) ---
 show_recent_progress 20
 
