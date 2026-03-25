@@ -165,6 +165,7 @@ Example:
   - [ ] `/integration-logic ES-1.1 ES-1.2` reports WIRED
   - [ ] Integration test for this boundary passes
   - [ ] Data flows correctly across the module boundary
+  - [ ] **Behavioral wiring verified:** All event handlers, message handlers, and callback registrations for this wiring are present in bootstrap/main entry point. Grep for: `.onMessage(`, `.on(`, `.addEventListener(`, `.registerHandler(`, `.registerRoute(`, `.subscribe(`, `.listen(`
 
 ### BP-1.0.99: {E2E Validation — Feature 1 Complete}
 - **Module:** (cross-module)

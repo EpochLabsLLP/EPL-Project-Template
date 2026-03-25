@@ -8,6 +8,31 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.10.0] - 2026-03-25
+
+### Added
+- **Engineering Spec template — `External Triggers` field:** Optional field for modules that accept external input (WebSocket, HTTP, CLI, scheduled, event). Specifies each trigger name, its handler destination, and the bootstrap registration point. Makes implicit callback registrations explicit at the spec level.
+- **Testing Plans template — Section 5: Entry Point E2E Tests:** New required section for projects with external interfaces. Tests must start from the actual transport layer (not internal method calls). Includes round-trip, audit trail, error propagation, and handler registration checks. Prompted by ATLAS postmortem: 611 tests passing, zero user messages handled — root cause was an unregistered WebSocket handler.
+- **Blueprint template — Behavioral wiring checklist in INTEGRATION task acceptance criteria:** Added mandatory checklist item requiring agents to grep bootstrap/entry point for handler registrations (`.onMessage(`, `.on(`, `.addEventListener(`, `.registerHandler(`, `.registerRoute(`, `.subscribe(`, `.listen(`).
+
+### Changed
+- Testing Plans template section numbering: Performance/Security/Compatibility/Accessibility/Coverage/Regression/CI-CD shifted from 5-11 to 6-12 to accommodate new Entry Point E2E section.
+
+### Migration Notes
+- **From v2.9.1**: Run `/template-sync --apply`. Additive changes to three spec/testing templates. No hook, script, or config changes. Existing frozen specs are unaffected — the new fields are only in the authoring templates.
+
+---
+
+## [2.9.1] - 2026-03-25
+
+### Changed
+- **`/integration-logic` — Behavioral Wiring (4th verification category):** Added explicit check for event handler registrations, callback subscriptions, message routing, and route registrations. Grep patterns: `.onMessage(`, `.on(`, `.addEventListener(`, `.registerHandler(`, `.registerRoute(`, `.subscribe(`, `.listen(`. Wiring checklist table gains "Handlers Wired?" column. Behavioral wiring failures are classified as BROKEN (not PARTIAL). Prompted by ATLAS field report: a fully "WIRED" system had no `user_message` handler registered on its WebSocket server — structural wiring passed, runtime was silent.
+
+### Migration Notes
+- **From v2.9.0**: Run `/template-sync --apply`. Single file change to `/.claude/skills/integration-logic/SKILL.md`. No hook or config changes.
+
+---
+
 ## [2.9.0] - 2026-03-24
 
 ### Added

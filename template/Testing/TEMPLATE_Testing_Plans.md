@@ -114,7 +114,43 @@
 
 ---
 
-## 5. Performance Testing
+## 5. Entry Point E2E Tests
+
+<!-- Required for every external interface (WebSocket, HTTP API, CLI, scheduled trigger).
+     These tests MUST start from the actual transport layer — not internal method calls.
+
+     The distinction from regular E2E tests (Section 3/4):
+     - Regular E2E: Does A → B → C → D produce results? (may call pipeline.execute() directly)
+     - Entry Point E2E: Does [WebSocket message / HTTP request / CLI command] → A → B → C → [response through same transport] work?
+
+     Field origin: ATLAS postmortem — 611 unit/integration/E2E tests passing, zero user messages handled.
+     Root cause: wsServer.onMessage() handler never registered. 30-line fix, hours of diagnosis.
+     These tests catch that gap by testing the trigger, not the pipeline.
+
+     Omit this section if the project has no external interfaces (pure library/internal module). -->
+
+### Entry Point: {Transport Layer — e.g., WebSocket Server}
+- **External triggers:** `{trigger_name}`, `{trigger_name}`, ...
+- **Test Cases:**
+  - [ ] **Round-trip:** Send `{trigger}` via real transport → receive expected response through same transport
+  - [ ] **Audit trail:** Full trigger→response path appears in logs/events
+  - [ ] **Error propagation:** Send malformed `{trigger}` → error propagates through transport (no silent failure)
+  - [ ] **Handler registration:** Grep bootstrap/entry point for `.onMessage(`, `.on(`, `.registerHandler(` — confirm handler exists
+- **Anti-pattern:** Do NOT call `pipeline.execute()` or any internal method directly. Use the transport.
+
+### Entry Point: {HTTP API}
+- **External triggers:** `POST /api/{route}`, `GET /api/{route}`
+- **Test Cases:**
+  - [ ] **Round-trip:** Send real HTTP request → verify HTTP response with correct status
+  - [ ] **Auth boundary:** Unauthenticated request → 401 (not 200, not 500)
+  - [ ] **Error propagation:** Invalid payload → structured error response
+  - [ ] **Route registration:** Grep bootstrap/app init for `.registerRoute(`, `app.post(`, `router.get(` — confirm route exists
+
+{Add one entry per external interface. Remove inapplicable transport types.}
+
+---
+
+## 6. Performance Testing
 
 | Test | Module | Metric | Target | Method |
 |------|--------|--------|--------|--------|
@@ -123,7 +159,7 @@
 
 ---
 
-## 6. Security Testing
+## 7. Security Testing
 
 | Test | Module | OWASP Category | Method |
 |------|--------|---------------|--------|
@@ -132,7 +168,7 @@
 
 ---
 
-## 7. Compatibility Testing
+## 8. Compatibility Testing
 
 {If applicable — browser compatibility, OS compatibility, device testing.}
 
@@ -143,7 +179,7 @@
 
 ---
 
-## 8. Accessibility Testing
+## 9. Accessibility Testing
 
 | Requirement | Standard | Method |
 |-------------|----------|--------|
@@ -154,7 +190,7 @@
 
 ---
 
-## 9. Coverage Targets
+## 10. Coverage Targets
 
 | Module Tier | Coverage Target | Rationale |
 |------------|----------------|-----------|
@@ -164,7 +200,7 @@
 
 ---
 
-## 10. Regression Strategy
+## 11. Regression Strategy
 
 {How do we prevent regressions as new code is added?}
 
@@ -174,7 +210,7 @@
 
 ---
 
-## 11. CI/CD Integration
+## 12. CI/CD Integration
 
 {How tests integrate with the build pipeline.}
 
