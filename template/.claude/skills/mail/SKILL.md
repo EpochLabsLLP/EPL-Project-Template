@@ -17,9 +17,12 @@ If `$ARGUMENTS` is `--check` or empty:
 2. If no messages, report "Inbox empty." and stop
 3. Display each message with its frontmatter (priority, from, type, date, subject)
 4. Sort by priority: **urgent** first, then **normal**, then **fyi**
-5. For each message, summarize the content and action needed
-6. Ask Nathan which messages to act on
-7. After acting on a message, move it to `.claude/inbox/_processed/`
+5. **Log each message to the mail ledger** — for each message, append a `RECEIVED` entry to `.claude/mail-ledger.md` if one doesn't already exist for that filename (dedupe by grepping for `file:{filename}`)
+6. For each message, summarize the content and action needed
+7. Ask Nathan which messages to act on (if interactive). If running autonomously (CLI heartbeat / `/work` flow), act on urgent messages immediately and process normal messages per the work pickup sequence.
+8. After acting on a message:
+   - **Log the action to the mail ledger** — append an `ACTED` entry with a note describing what was done, OR a `NO-ACTION` entry with `status:fyi` if the message was informational only
+   - Move the message to `.claude/inbox/_processed/`
 
 ## Send Mail
 
@@ -91,13 +94,60 @@ subject: {one-line subject}
 {references}
 ```
 
-4. Confirm to Nathan: "Mail sent to {project} — {subject}"
+4. **Log the send to the mail ledger** — append a `SENT` entry to this project's `.claude/mail-ledger.md`
+5. Confirm to Nathan: "Mail sent to {project} — {subject}"
 
 ### Step 4 — Reply Threading (Optional)
 
 If this message is a reply to a received message:
 - Add `in-reply-to: {original filename}` to the frontmatter
 - Reference the original message in the Context section
+
+## Check Ledger (`/mail --ledger`)
+
+If `$ARGUMENTS` is `--ledger`:
+
+1. Read `.claude/mail-ledger.md` (last 20 lines)
+2. Count entries by status: `grep -c "status:pending"`, `grep -c "status:done"`, `grep -c "status:fyi"`
+3. Display summary: `Pending: N | Done: N | FYI: N`
+4. Show the last 20 entries
+5. If any entries have `status:pending`, list them prominently — these are messages that were received but not yet acted on
+
+## Mail Ledger Format
+
+The mail ledger at `.claude/mail-ledger.md` is an append-only, grep-scannable log of all mail events. It is `.gitignored` (machine-local). Each entry is one line:
+
+```
+YYYY-MM-DDTHH:MM:SS | ACTION | from:PROJECT | subject:SLUG | file:FILENAME | by:INSTANCE_ID | status:STATUS | note:TEXT
+```
+
+**Fields:**
+- **ACTION**: `RECEIVED`, `ACTED`, `NO-ACTION`, `SENT`, `REPLIED`
+- **from:/to:**: The project the mail came from (for inbound) or went to (for SENT)
+- **subject:**: The message subject slug (from frontmatter)
+- **file:**: The message filename (key for deduplication and cross-reference)
+- **by:**: The instance ID that performed this action (from `.claude/instance-id`)
+- **status:**: `pending` (received, not yet acted on), `done` (action complete), `fyi` (informational, no action needed)
+- **note:**: Brief description of what was done (for ACTED/NO-ACTION/REPLIED entries)
+
+**Examples:**
+```
+2026-03-24T10:30:00 | RECEIVED  | from:Epoch-PM | subject:phase-n-start | file:2026-03-24_pm_phase-n.md | by:epoe-cli-20260324-1030 | status:pending
+2026-03-24T10:35:00 | ACTED     | from:Epoch-PM | subject:phase-n-start | file:2026-03-24_pm_phase-n.md | by:epoe-cli-20260324-1030 | status:done | note:Updated mission-lock, began Phase N
+2026-03-24T10:36:00 | SENT      | to:Epoch-PM   | subject:status-beacon | file:2026-03-24_epoe_beacon.md | by:epoe-cli-20260324-1030 | status:done
+2026-03-24T14:00:00 | NO-ACTION | from:Epoch-PM | subject:fyi-metrics   | file:2026-03-24_pm_metrics.md | by:epoe-vsc-20260324-1400 | status:fyi | note:Informational only
+```
+
+**Reading the ledger:**
+- `grep "status:pending"` — find all unresolved messages
+- `grep "from:ATLAS"` — find all ATLAS correspondence
+- `grep "ACTED"` — find all messages that were acted on (with notes)
+- `grep "by:epoe-cli"` — find all actions by CLI heartbeat instances
+
+**Rotation:** When the ledger exceeds 500 lines, truncate to the last 250 lines. Check line count before appending and rotate if needed.
+
+**How to write a ledger entry:**
+Read the instance ID from `.claude/instance-id` (or use "unknown" if missing). Append one line using the format above. The `note:` field is optional for RECEIVED and SENT entries but required for ACTED and NO-ACTION entries.
 
 ## Inbox Conventions
 
@@ -106,3 +156,4 @@ If this message is a reply to a received message:
 - Never delete messages — the `_processed/` folder is the audit trail
 - Urgent messages should be addressed before continuing other work
 - The session-start hook automatically surfaces unread messages
+- **The mail ledger tracks what happened** — every receive, action, and send is logged so the next instance knows what was already handled

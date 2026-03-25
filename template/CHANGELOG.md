@@ -8,6 +8,25 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.9.0] - 2026-03-24
+
+### Added
+- **Mail Ledger** — `.claude/mail-ledger.md` tracks all mail events (received, acted, sent, no-action) with instance stamps. Solves the "next agent doesn't know what happened with that mail" problem. Append-only, grep-scannable, `.gitignored`.
+  - `/mail --check` now auto-logs `RECEIVED` entries when displaying messages and `ACTED`/`NO-ACTION` entries after processing
+  - `/mail <project>` now auto-logs `SENT` entries after sending
+  - `/mail --ledger` shows ledger summary and pending actions
+- **Mail awareness in `/work` skill** — Step 2.5 checks mail ledger for pending messages before picking up work. Urgent pending mail is addressed first.
+- **Mail ledger display in session hooks** — All 3 session hooks (start/resume/compact) show pending mail count from the ledger
+
+### Changed
+- Session hooks now display `[MAIL LEDGER: N message(s) pending action]` when unresolved mail exists
+- Mail skill documents the ledger line format for consistent agent writes
+
+### Migration Notes
+- **From v2.8.1**: Run `/template-sync --apply`. Purely additive. The mail ledger file is created automatically on first `/mail --check` run. No manual setup needed.
+
+---
+
 ## [2.8.1] - 2026-03-24
 
 ### Added

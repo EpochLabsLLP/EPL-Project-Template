@@ -57,6 +57,9 @@ build/
 .claude/instance-id
 .claude/progress.log
 
+# Mail ledger (machine-local tracking)
+.claude/mail-ledger.md
+
 # Template backup directory
 .template_backup/
 

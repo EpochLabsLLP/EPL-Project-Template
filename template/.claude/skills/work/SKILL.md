@@ -52,6 +52,19 @@ Do not output a summary of the log. Internalize the context and proceed.
 
 ---
 
+### Step 2.5: CHECK MAIL LEDGER
+
+Read `.claude/mail-ledger.md` (last 10 lines). If the file doesn't exist, skip this step.
+
+- Look for entries with `status:pending` — these are messages that were received but not yet acted on
+- If any pending messages have `priority: urgent` (check the original file in `.claude/inbox/_processed/`): address them NOW before picking up work. Run `/mail --check` if needed.
+- If pending messages are `priority: normal`: note them but proceed — handle after current WO completes or during Step 6 if no WOs are available
+- If no pending entries: good, proceed silently
+
+Do not output a summary. Internalize and proceed.
+
+---
+
 ### Step 3: CHECK CHECKPOINT
 
 Read `.claude/checkpoint.md`.
