@@ -1,5 +1,5 @@
 {
-  "template_version": "2.9.0",
+  "template_version": "2.10.0",
   "template_repo": "Epoch Labs Project Template/_ProjectTemplate",
   "description": "Epoch Labs project template manifest. Declares file ownership for template sync.",
   "claude_md_structure_version": "2.2.0",
