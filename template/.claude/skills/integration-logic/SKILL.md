@@ -51,7 +51,7 @@ When `$ARGUMENTS` contains two module names:
    - Service calls (A calls B's API/methods)
    - Shared data (database tables, shared state, event buses)
    - Dependency injection (A depends on B's interface)
-   - Event/callback wiring (A listens for B's events)
+   - Event/callback wiring (A listens for B's events, registers handlers, subscribes to messages)
 
 3. **For each integration point, verify the wiring:**
 
@@ -70,11 +70,19 @@ When `$ARGUMENTS` contains two module names:
    - Are timeouts configured for cross-module calls?
    - Is retry logic appropriate (idempotent operations only)?
 
+   **Behavioral Wiring** *(check this even if the other three pass)*
+   - For every event, message type, or route that module B exposes: is there a registered handler in the consuming module?
+   - Grep for registration patterns: `.onMessage(`, `.on(`, `.addEventListener(`, `.registerHandler(`, `.registerRoute(`, `.subscribe(`, `.listen(`
+   - For each expected event/message type in the spec, confirm a handler is registered for that specific type — not just that the pattern exists somewhere.
+   - A structural dependency (constructor injection, `connect*()` method) is NOT sufficient if the consuming module never registers a handler for the events it needs to receive.
+
 4. **Report as a wiring checklist:**
-   | Integration Point | From -> To | Registered? | Types Match? | Errors Handled? | Status |
-   |-------------------|-----------|:-----------:|:------------:|:---------------:|--------|
+   | Integration Point | From -> To | Registered? | Types Match? | Errors Handled? | Handlers Wired? | Status |
+   |-------------------|-----------|:-----------:|:------------:|:---------------:|:---------------:|--------|
 
 5. **Verdict:** WIRED (all points connected), PARTIAL (list gaps), or BROKEN (list failures).
+
+   > **Behavioral wiring failures are BROKEN, not PARTIAL.** A module that is structurally connected but never receives events it depends on is not wired — it will silently fail at runtime with no structural trace.
 
 ## Important
 
@@ -82,3 +90,4 @@ When `$ARGUMENTS` contains two module names:
 - The Integration Matrix in the Engineering Spec is the source of truth for which modules connect
 - WIRED means verified with evidence (grep, file reads) — not assumed from code structure
 - Include file paths and line numbers for every verified integration point
+- **Behavioral wiring is the most common silent failure mode.** Structural wiring (constructor injection, connect methods) is visible in architecture diagrams. Event handler registration is not — it only fails at runtime when the first message goes unhandled. Check it explicitly every time.
