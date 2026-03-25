@@ -99,6 +99,10 @@ Example:
   - {Responsibility 2}
 - **Dependencies:** {Other modules this depends on}
 - **Performance Budget:** {Latency, throughput, memory constraints}
+- **External Triggers:** *(include for any module that accepts external input — WebSocket, HTTP, CLI, scheduled, event. Omit if module has no external-facing interface.)*
+  - `{trigger_name}` → {HandlerMethod}() → {response_type}
+  - `{trigger_name}` → (no-op, acknowledged)
+  - **Registration point:** `{bootstrap.ts / main.py / app.js}` must call `{module}.{registerMethod}()` for each trigger above.
 
 ### ES-1.2: {Module Name}
 - **Implements:** PVD-1
