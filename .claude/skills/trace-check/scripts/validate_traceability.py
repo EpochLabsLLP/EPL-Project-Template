@@ -125,6 +125,82 @@ def get_wo_status(content):
     return "UNKNOWN"
 
 
+def classify_spec_file(file_path):
+    """Classify a spec file into its spec type based on filename.
+
+    Returns the spec type string (e.g., "PVD", "Engineering_Spec") or None
+    if the file doesn't match any known spec type.
+    """
+    name = file_path.name.lower()
+    if "engineering_spec" in name:
+        return "Engineering_Spec"
+    if "ux_spec" in name:
+        return "UX_Spec"
+    if "blueprint" in name:
+        return "Blueprint"
+    if "product_brief" in name:
+        return "Product_Brief"
+    if "decision_record" in name:
+        return "Decision_Record"
+    if "testing_plan" in name:
+        return "Testing_Plans"
+    if re.search(r'(^|_)prd(?:_|\.|$)', name):
+        return "PRD"
+    if re.search(r'(^|_)pvd(?:_|\.|$)', name):
+        return "PVD"
+    return None
+
+
+def spec_file_rank(file_path, content):
+    """Return a sortable rank for choosing the canonical file in a doc family.
+
+    Ranking priority (highest to lowest):
+    1. Not a draft (finalized files always beat drafts)
+    2. Frozen status (frozen beats unfrozen)
+    3. Has a version number (versioned beats unversioned)
+    4. Version number (higher version wins as tiebreaker)
+    """
+    name = file_path.name.lower()
+    version_match = re.search(r'_v(\d+)(?:_draft)?\.md$', name)
+    version = int(version_match.group(1)) if version_match else -1
+    is_draft = "_draft" in name
+    is_frozen = check_frozen(content)
+
+    return (
+        0 if is_draft else 1,            # Finalized always beats draft
+        1 if is_frozen else 0,            # Frozen beats unfrozen
+        1 if version_match else 0,        # Versioned beats unversioned
+        version,                          # Higher version wins as tiebreaker
+    )
+
+
+def select_canonical_spec_files(files):
+    """Choose the single canonical file for each spec family.
+
+    When multiple files match the same spec type (e.g., v1 + v2_DRAFT),
+    picks the best one using spec_file_rank(). This prevents DRAFT versions
+    from being treated as the authoritative spec.
+    """
+    canonical = {}
+
+    for f in files:
+        spec_type = classify_spec_file(f)
+        if not spec_type:
+            continue
+
+        content = f.read_text(encoding="utf-8", errors="replace")
+        rank = spec_file_rank(f, content)
+        current = canonical.get(spec_type)
+        if current is None or rank > current["rank"]:
+            canonical[spec_type] = {
+                "file": f,
+                "content": content,
+                "rank": rank,
+            }
+
+    return canonical
+
+
 def parse_specs(project_dir):
     """Parse all spec files and extract traceability data."""
     data = {
@@ -143,31 +219,33 @@ def parse_specs(project_dir):
     test_files = find_files(project_dir, ["Testing"])
     wo_files = find_files(project_dir, ["WorkOrders"])
 
-    # --- Identify spec types and frozen status ---
-    for f in spec_files:
-        content = f.read_text(encoding="utf-8", errors="replace")
-        name = f.name.lower()
+    # --- Identify spec types and frozen status via canonical selection ---
+    # This ensures that when multiple versions exist (e.g., v1 frozen + v2 DRAFT),
+    # the correct file is chosen: finalized > draft, frozen > unfrozen, then version.
+    canonical_specs = select_canonical_spec_files(spec_files)
+    for spec_type, info in canonical_specs.items():
+        f = info["file"]
+        content = info["content"]
+        if spec_type == "Decision_Record":
+            data["frozen_specs"][spec_type] = {"file": str(f.relative_to(project_dir)), "frozen": False}
+        else:
+            data["frozen_specs"][spec_type] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
 
-        if "pvd" in name and "template" not in name:
-            data["frozen_specs"]["PVD"] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
-        elif "prd" in name and "template" not in name:
-            data["frozen_specs"]["PRD"] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
-        elif "product_brief" in name and "template" not in name:
-            data["frozen_specs"]["Product_Brief"] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
-        elif "engineering_spec" in name and "template" not in name:
-            data["frozen_specs"]["Engineering_Spec"] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
-        elif "ux_spec" in name and "template" not in name:
-            data["frozen_specs"]["UX_Spec"] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
-        elif "blueprint" in name and "template" not in name:
-            data["frozen_specs"]["Blueprint"] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
-        elif "decision_record" in name and "template" not in name:
-            data["frozen_specs"]["Decision_Record"] = {"file": str(f.relative_to(project_dir)), "frozen": False}  # Living, never frozen
+    # Also check Testing for Testing Plans (same canonical selection)
+    canonical_tests = select_canonical_spec_files(test_files)
+    for spec_type, info in canonical_tests.items():
+        f = info["file"]
+        content = info["content"]
+        data["frozen_specs"][spec_type] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
 
-    for f in test_files:
-        content = f.read_text(encoding="utf-8", errors="replace")
-        name = f.name.lower()
-        if "testing_plan" in name and "template" not in name:
-            data["frozen_specs"]["Testing_Plans"] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
+    # Testing Plans fallback — classify_spec_file may not catch "testing_plan" naming
+    if "Testing_Plans" not in data["frozen_specs"]:
+        for f in test_files:
+            name = f.name.lower()
+            if "testing_plan" in name and "template" not in name:
+                content = f.read_text(encoding="utf-8", errors="replace")
+                data["frozen_specs"]["Testing_Plans"] = {"file": str(f.relative_to(project_dir)), "frozen": check_frozen(content)}
+                break
 
     # --- Extract traceability IDs from all files ---
     all_files = spec_files + test_files + wo_files
