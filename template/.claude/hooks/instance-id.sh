@@ -13,13 +13,14 @@
 #   ID=$(get_instance_id)  # Read the current instance ID
 
 _detect_agent_name() {
-  local ABBREV_FILE="$CLAUDE_PROJECT_DIR/.claude/project-abbreviation"
+  local _CPD="${CLAUDE_PROJECT_DIR:-$PROJECT_DIR}"
+  local ABBREV_FILE="$_CPD/.claude/project-abbreviation"
   if [ -f "$ABBREV_FILE" ]; then
     head -1 "$ABBREV_FILE" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]'
     return
   fi
   # Fall back to directory name, lowercased, first word, max 8 chars
-  basename "$CLAUDE_PROJECT_DIR" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9].*//; s/^\(.\{8\}\).*/\1/'
+  basename "${CLAUDE_PROJECT_DIR:-$PROJECT_DIR}" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9].*//; s/^\(.\{8\}\).*/\1/'
 }
 
 _detect_env() {
@@ -39,12 +40,12 @@ generate_instance_id() {
   ID="${AGENT}-${ENV}-${TIMESTAMP}"
 
   # Write to instance-id file (overwritten each session start)
-  echo "$ID" > "$CLAUDE_PROJECT_DIR/.claude/instance-id" 2>/dev/null
+  echo "$ID" > "${CLAUDE_PROJECT_DIR:-$PROJECT_DIR}/.claude/instance-id" 2>/dev/null
   echo "$ID"
 }
 
 get_instance_id() {
-  local ID_FILE="$CLAUDE_PROJECT_DIR/.claude/instance-id"
+  local ID_FILE="${CLAUDE_PROJECT_DIR:-$PROJECT_DIR}/.claude/instance-id"
   if [ -f "$ID_FILE" ]; then
     cat "$ID_FILE" 2>/dev/null
   else

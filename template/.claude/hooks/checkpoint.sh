@@ -8,7 +8,8 @@
 
 show_checkpoint() {
   local CONTEXT="$1"  # "compact", "resume", or "start"
-  local CHECKPOINT_FILE="$CLAUDE_PROJECT_DIR/.claude/checkpoint.md"
+  local _CPD="${CLAUDE_PROJECT_DIR:-$PROJECT_DIR}"
+  local CHECKPOINT_FILE="$_CPD/.claude/checkpoint.md"
 
   if [ ! -f "$CHECKPOINT_FILE" ]; then
     return 0  # No checkpoint — nothing to show

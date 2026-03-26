@@ -14,7 +14,8 @@
 
 log_progress() {
   local MESSAGE="$1"
-  local PROGRESS_FILE="$CLAUDE_PROJECT_DIR/.claude/progress.log"
+  local _CPD="${CLAUDE_PROJECT_DIR:-$PROJECT_DIR}"
+  local PROGRESS_FILE="$_CPD/.claude/progress.log"
   local INSTANCE_ID
   INSTANCE_ID=$(get_instance_id 2>/dev/null || echo "unknown")
   local TS
@@ -26,7 +27,8 @@ log_progress() {
 
 show_recent_progress() {
   local LINES="${1:-20}"
-  local PROGRESS_FILE="$CLAUDE_PROJECT_DIR/.claude/progress.log"
+  local _CPD="${CLAUDE_PROJECT_DIR:-$PROJECT_DIR}"
+  local PROGRESS_FILE="$_CPD/.claude/progress.log"
 
   if [ ! -f "$PROGRESS_FILE" ]; then
     return 0  # No progress log yet — nothing to show
