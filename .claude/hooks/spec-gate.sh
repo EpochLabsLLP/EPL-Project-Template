@@ -22,7 +22,7 @@
 
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$HOOK_DIR/observe.sh" 2>/dev/null
-PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$HOOK_DIR/../.." && pwd)}"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
 # --- Determine file path from Edit/Write or Bash ---

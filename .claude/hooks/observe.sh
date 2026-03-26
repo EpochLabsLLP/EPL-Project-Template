@@ -14,7 +14,8 @@ emit_event() {
   local DECISION="$2"
   shift 2
 
-  local OBS_DIR="$CLAUDE_PROJECT_DIR/.claude/observability"
+  local _CPD="${CLAUDE_PROJECT_DIR:-$PROJECT_DIR}"
+  local OBS_DIR="$_CPD/.claude/observability"
   local LOG_FILE="$OBS_DIR/events.jsonl"
 
   # Ensure directory exists (first call creates it)

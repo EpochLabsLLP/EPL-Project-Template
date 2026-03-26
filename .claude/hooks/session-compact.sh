@@ -12,7 +12,7 @@ source "$HOOK_DIR/observe.sh" 2>/dev/null
 source "$HOOK_DIR/checkpoint.sh" 2>/dev/null
 source "$HOOK_DIR/instance-id.sh" 2>/dev/null
 source "$HOOK_DIR/progress-log.sh" 2>/dev/null
-PROJECT_DIR="$CLAUDE_PROJECT_DIR"
+PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$HOOK_DIR/../.." && pwd)}"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 SESSIONS_DIR="$PROJECT_DIR/Sessions"
