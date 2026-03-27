@@ -34,6 +34,40 @@
    - If integration points exist, `/integration-logic` must have been run for each and reported WIRED.
    - If no integration points exist (standalone module), this gate is N/A.
 
+## Verification Commands
+
+Each gate has a concrete verification method. "No stubs" is unambiguous when backed by a grep pattern.
+
+| Gate | Criterion | Verification | Pass Condition |
+|------|-----------|-------------|----------------|
+| 1 | No stubs | `grep -rn` for stub patterns (see below) in `src/`/`Code/` | 0 results |
+| 2 | Tests exist | Cross-reference public method count with test count; run coverage tool | Coverage >= module target in ES |
+| 3 | No deferred work | `grep -rn "TODO\|FIXME\|HACK\|XXX"` in `src/`/`Code/` | 0 results (all moved to Gap Tracker) |
+| 4 | License compliance | `npx license-checker --onlyAllow "MIT;Apache-2.0;BSD"` or lang equivalent | 0 violations |
+| 5 | Clean build | Build command with stderr captured; grep for warnings | 0 warnings |
+| 6 | Performance met | Run perf test suite; compare actual metrics to ES performance budgets | All within budget |
+| 7 | Integration verified | `/integration-logic <module>` | Verdict: WIRED |
+
+### Stub Detection Patterns (Gate 1 — expanded)
+
+The following patterns indicate incomplete implementation. ALL must return 0 results.
+
+**JavaScript/TypeScript:**
+- `throw new Error('Not implemented')` / `throw new Error('TODO')`
+- `// TODO` / `// FIXME`
+- `return null // placeholder`
+- `() => {}` (empty arrow functions in non-test files)
+
+**Python:**
+- `raise NotImplementedError`
+- `pass` (as sole function body)
+- `# TODO` / `# FIXME`
+- `return None  # placeholder`
+
+**All languages:**
+- `HACK` / `XXX` / `PLACEHOLDER` / `stub`
+- `mock` (in non-test files — real implementations, not test mocks)
+
 ## How to Invoke
 
 Run `/module-complete <module>` to verify all gates (Gates 1-7) against a specific module. The skill will check each gate and report pass/fail.

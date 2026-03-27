@@ -118,8 +118,10 @@ Additionally, a **global** MCP server (configured in `~/.claude.json`, available
 
 See `C:\Claude Folder\Memory\CLAUDE.md` for full schema reference and constraints.
 
-## Quality Gates
+## Quality Gates & Definition of Done
 Before marking ANY module complete, run `/code-review` then `/module-complete`. All gates in `/.claude/rules/quality-gates.md` must pass.
+
+When unsure what "done" means at any level (WO, module, feature, wave, release), check `/.claude/rules/definition-of-done.md` — the single source of truth for completion criteria at every level.
 
 ## Claude Code Skills
 Invoke with `/skill-name <args>`.

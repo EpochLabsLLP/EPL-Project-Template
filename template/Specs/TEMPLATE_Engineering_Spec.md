@@ -104,6 +104,17 @@ Example:
   - `{trigger_name}` → (no-op, acknowledged)
   - **Registration point:** `{bootstrap.ts / main.py / app.js}` must call `{module}.{registerMethod}()` for each trigger above.
 
+#### Done Criteria (all must be true before this module is complete)
+- [ ] All interface contract methods implemented with real logic (no stubs)
+- [ ] Unit test coverage >= {target}% for this module specifically
+- [ ] All dependencies in Module Integration Matrix verified WIRED
+  - [ ] ES-1.1 → {ES-X.Y}: {connection type} — WIRED
+- [ ] Performance budget met: {specific metric} < {target value}
+- [ ] Error handling: all error paths produce structured errors (no silent swallows)
+- [ ] Entry points (if any): handler registered and transport-level test exists
+  - [ ] {trigger type}: handler registered at {location}
+  - [ ] {trigger type}: transport test at {test file}
+
 ### ES-1.2: {Module Name}
 - **Implements:** PVD-1
 - **Purpose:** {What this module does}
@@ -112,9 +123,15 @@ Example:
 - **Dependencies:** {ES-1.1}
 - **Performance Budget:** {constraints}
 
+#### Done Criteria
+- [ ] All interface contract methods implemented (no stubs)
+- [ ] Unit test coverage >= {target}%
+- [ ] Integration verified: ES-1.2 → ES-1.1 WIRED
+- [ ] Performance budget met
+
 ### ES-2.1: {Module Name}
 - **Implements:** PVD-2
-{Continue pattern for all modules...}
+{Continue pattern for all modules. Each module must include a Done Criteria section.}
 
 ---
 

@@ -108,9 +108,43 @@ WO-{N.M.T}-{X}  →  BP-{N.M.T}  →  ES-{N.M}  →  PVD-{N}
 
 ---
 
-## 6. Validation Result
+## 6. Validation Evidence
 
-<!-- Filled in after validation. -->
+<!-- REQUIRED before transitioning to DONE. Paste actual output, not just "PASS."
+     This creates a searchable audit trail. If something breaks later, this section
+     shows exactly what was verified (and what might have been missed). -->
+
+- [ ] `/code-review` verdict:
+  - Result: {PASS / FAIL}
+  - Summary: {paste key findings or "no issues"}
+
+- [ ] `/module-complete` verdict (if completing a module):
+  - Gates passed: {X/7}
+  - Any gates requiring explanation: {details or "all clean"}
+
+- [ ] `/integration-logic` verdict (if integration task):
+  - Result: {WIRED / PARTIAL / BROKEN}
+  - Evidence: {which connections verified, how}
+
+- [ ] Test results:
+  - Unit tests: {X/Y passing}
+  - Coverage: {N%}
+  - E2E (if applicable): {X/Y scenarios passing}
+
+- [ ] Entry point verified (if module has external trigger):
+  - Handler registration confirmed: {grep command + result}
+  - Transport-level test exists: {test file path:line number}
+
+- [ ] Acceptance criteria checklist:
+  - [ ] Criterion 1: {GIVEN/WHEN/THEN — verified how}
+  - [ ] Criterion 2: {GIVEN/WHEN/THEN — verified how}
+  - [ ] Criterion 3: {GIVEN/WHEN/THEN — verified how}
+
+---
+
+## 7. Validation Result
+
+<!-- Filled in after validation evidence is recorded. -->
 
 **Result:** {DONE / FAILED}
 **Validated by:** {Name/agent}
@@ -126,7 +160,7 @@ WO-{N.M.T}-{X}  →  BP-{N.M.T}  →  ES-{N.M}  →  PVD-{N}
 
 ---
 
-## 7. Commit
+## 8. Commit
 
 <!-- Completed when WO reaches DONE. Each WO = one commit. -->
 

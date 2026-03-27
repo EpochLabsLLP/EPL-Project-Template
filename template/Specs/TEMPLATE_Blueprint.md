@@ -145,10 +145,13 @@ Example:
 - **Description:** {What this task implements}
 - **Interface Contracts:**
   - {Which frozen contracts from Engineering Spec apply}
-- **Acceptance Criteria:**
-  - [ ] {Testable criterion 1}
-  - [ ] {Testable criterion 2}
-  - [ ] {Testable criterion 3}
+- **Acceptance Criteria:** *(minimum 3, all must be testable GIVEN/WHEN/THEN)*
+  - [ ] GIVEN {precondition} WHEN {action} THEN {observable outcome} *(Per ES-{N.M})*
+  - [ ] GIVEN {precondition} WHEN {action} THEN {observable outcome} *(Per ES-{N.M})*
+  - [ ] GIVEN {error/edge case} WHEN {action} THEN {error handling outcome} *(Per ES-{N.M})*
+  <!-- Each criterion must: (1) reference the originating spec requirement,
+       (2) be verifiable by grep, test execution, or measurable observation,
+       (3) at least one must cover the error/edge case path. -->
 - **Notes:** {Any implementation guidance or constraints}
 
 ### BP-1.1.2: {Integration Task — Wires ES-1.1 to ES-1.2}

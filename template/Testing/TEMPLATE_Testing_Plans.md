@@ -129,22 +129,41 @@
 
      Omit this section if the project has no external interfaces (pure library/internal module). -->
 
+For each external trigger listed in the Engineering Spec, four tests are REQUIRED:
+
+1. **Handler Registration Test** — grep bootstrap/init code to confirm handler is registered (not just defined)
+2. **Transport-Level Happy Path** — send real request through actual transport, verify response through same transport
+3. **Transport-Level Error Path** — send malformed/unauthorized input through transport, verify error response
+4. **Audit Trail Test** — verify the request appears in logs/observability (proves full pipeline executed)
+
+### Entry Point E2E Matrix
+
+<!-- Every row must have all 4 test IDs assigned and implemented before the module
+     containing that entry point can be marked complete. -->
+
+| External Trigger | Handler Registration | Happy Path | Error Path | Audit Trail |
+|-----------------|---------------------|------------|------------|-------------|
+| {WS: trigger_name} | TP-{N.M}.E1 | TP-{N.M}.E2 | TP-{N.M}.E3 | TP-{N.M}.E4 |
+| {POST /api/route} | TP-{N.M}.E1 | TP-{N.M}.E2 | TP-{N.M}.E3 | TP-{N.M}.E4 |
+| {CLI: command} | TP-{N.M}.E1 | TP-{N.M}.E2 | TP-{N.M}.E3 | TP-{N.M}.E4 |
+| {Cron: schedule} | TP-{N.M}.E1 | TP-{N.M}.E2 | TP-{N.M}.E3 | TP-{N.M}.E4 |
+
 ### Entry Point: {Transport Layer — e.g., WebSocket Server}
 - **External triggers:** `{trigger_name}`, `{trigger_name}`, ...
 - **Test Cases:**
-  - [ ] **Round-trip:** Send `{trigger}` via real transport → receive expected response through same transport
-  - [ ] **Audit trail:** Full trigger→response path appears in logs/events
-  - [ ] **Error propagation:** Send malformed `{trigger}` → error propagates through transport (no silent failure)
-  - [ ] **Handler registration:** Grep bootstrap/entry point for `.onMessage(`, `.on(`, `.registerHandler(` — confirm handler exists
+  - [ ] **Handler registration (TP-{N.M}.E1):** Grep bootstrap/entry point for `.onMessage(`, `.on(`, `.registerHandler(` — confirm handler exists
+  - [ ] **Happy path (TP-{N.M}.E2):** Send `{trigger}` via real transport → receive expected response through same transport
+  - [ ] **Error path (TP-{N.M}.E3):** Send malformed `{trigger}` → error propagates through transport (no silent failure)
+  - [ ] **Audit trail (TP-{N.M}.E4):** Full trigger→response path appears in logs/events
 - **Anti-pattern:** Do NOT call `pipeline.execute()` or any internal method directly. Use the transport.
 
 ### Entry Point: {HTTP API}
 - **External triggers:** `POST /api/{route}`, `GET /api/{route}`
 - **Test Cases:**
-  - [ ] **Round-trip:** Send real HTTP request → verify HTTP response with correct status
-  - [ ] **Auth boundary:** Unauthenticated request → 401 (not 200, not 500)
-  - [ ] **Error propagation:** Invalid payload → structured error response
-  - [ ] **Route registration:** Grep bootstrap/app init for `.registerRoute(`, `app.post(`, `router.get(` — confirm route exists
+  - [ ] **Handler registration (TP-{N.M}.E1):** Grep bootstrap/app init for `.registerRoute(`, `app.post(`, `router.get(` — confirm route exists
+  - [ ] **Happy path (TP-{N.M}.E2):** Send real HTTP request → verify HTTP response with correct status
+  - [ ] **Error path (TP-{N.M}.E3):** Invalid payload → structured error response; unauthenticated → 401
+  - [ ] **Audit trail (TP-{N.M}.E4):** Request appears in audit log with full path trace
 
 {Add one entry per external interface. Remove inapplicable transport types.}
 
