@@ -17,8 +17,8 @@ PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo
 # Capture stdin ONCE (JSON from Claude Code), then pipe to each extraction
 INPUT=$(cat)
 
-FILE_PATH=$(echo "$INPUT" | $PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.file_path)
-CONTENT=$(echo "$INPUT" | $PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.content)
+FILE_PATH=$(echo "$INPUT" | $PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.file_path 2>/dev/null)
+CONTENT=$(echo "$INPUT" | $PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.content 2>/dev/null)
 
 if [ -z "$FILE_PATH" ]; then
   exit 0

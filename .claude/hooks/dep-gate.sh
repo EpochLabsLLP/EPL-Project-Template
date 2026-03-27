@@ -18,7 +18,7 @@
 HOOK_DIR="$(cd "$(dirname "$0")" && pwd)"
 source "$HOOK_DIR/observe.sh" 2>/dev/null
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
-COMMAND=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.command)
+COMMAND=$($PYTHON "$HOOK_DIR/parse_hook_input.py" tool_input.command 2>/dev/null)
 
 if [ -z "$COMMAND" ]; then
   exit 0
