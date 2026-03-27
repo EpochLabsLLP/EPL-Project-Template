@@ -8,6 +8,25 @@ Upgrade projects with `/template-sync --apply`. See Migration Notes for version-
 
 ---
 
+## [2.11.0] - 2026-03-26
+
+### Added
+- **`definition-of-done.md` — Consolidated completion reference card.** New rule file (auto-loaded) defining "done" at every level: Work Order, Module, Feature, Wave, Release. Includes Gap Tracker phase closure rules (Tier 0/1 must be empty before wave/feature completion). Single source of truth — eliminates need to cross-reference CLAUDE.md + quality-gates.md + execution-protocol.md.
+- **Work Order template — Validation Evidence section (Section 6).** Mandatory evidence block before DONE: `/code-review` output, `/module-complete` gate results, test counts, entry point verification, acceptance criteria checklist. "Done" now requires recorded proof, not verbal assertion.
+- **Blueprint template — GIVEN/WHEN/THEN acceptance criteria.** Task card acceptance criteria now require structured format with minimum 3 criteria, spec references, and at least one error/edge case path. Directly translatable to test cases.
+- **Testing Plans template — Entry Point E2E Matrix.** Formalized 4-test requirement per external trigger: handler registration, transport happy path, transport error path, audit trail. Matrix format with TP-N.M.E1-E4 identifiers.
+- **Engineering Spec template — Per-module Done Criteria.** Each module specification now includes a Done Criteria checklist: interface completeness, coverage target, integration verification, performance budget, error handling, entry points. Visible where the agent reads the spec.
+
+### Changed
+- **quality-gates.md — Machine-verifiable verification commands.** Each gate now has a concrete grep pattern or tool command with an explicit pass condition. Stub detection patterns expanded for JavaScript/TypeScript and Python. Eliminates interpretation variance between agents.
+- **CLAUDE.md — References definition-of-done.md** in the Quality Gates section.
+
+### Migration Notes
+- `definition-of-done.md` is auto-deployed as infrastructure. No migration needed.
+- Template files (Work Order, Blueprint, Testing Plans, Engineering Spec) apply to new documents only. Existing frozen specs are unaffected.
+
+---
+
 ## [2.10.0] - 2026-03-25
 
 ### Added
