@@ -99,6 +99,27 @@ if [ -n "$SPEC_FILES" ]; then
   MSG="$MSG Spec/WO files modified — Work Ledger will be regenerated on next session start."
 fi
 
+# --- Advisory: WO coverage for code changes ---
+# Check if code files are staged but no WO references them in the commit message
+CODE_STAGED=$(git -C "$PROJECT_DIR" diff --cached --name-only 2>/dev/null | grep -E '(Code/|code/|src/|lib/|app/|packages/)' | head -1)
+if [ -n "$CODE_STAGED" ]; then
+  # Check if any WO is IN-PROGRESS (should be, if spec-gate allowed the writes)
+  HAS_WO=false
+  if [ -d "$PROJECT_DIR/WorkOrders" ]; then
+    for wof in "$PROJECT_DIR"/WorkOrders/*.md; do
+      [ -f "$wof" ] || continue
+      case "$wof" in *TEMPLATE_*|*_Archive*) continue ;; esac
+      if head -20 "$wof" | grep -qE 'IN-PROGRESS'; then
+        HAS_WO=true
+        break
+      fi
+    done
+  fi
+  if [ "$HAS_WO" = false ]; then
+    MSG="$MSG WARNING: Code files staged but no Work Order is IN-PROGRESS. Create a WO for traceability."
+  fi
+fi
+
 emit_event "gate.commit" "allow"
 echo "{\"systemMessage\":\"$MSG Consider running /code-review if this completes a module.\"}"
 exit 0
