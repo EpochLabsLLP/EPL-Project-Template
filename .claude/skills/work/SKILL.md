@@ -85,6 +85,12 @@ Identify:
 - Which WOs are PENDING
 - Which WOs are FAILED
 
+**Check for orphaned deferred items:**
+```bash
+python "$CLAUDE_PROJECT_DIR/.claude/skills/deferred-audit/scripts/scan_deferred.py" "$CLAUDE_PROJECT_DIR" --quick
+```
+If orphaned items exist (exit code 1), note them. These are commitments from prior specs that were never scheduled. When picking work in Step 6, consider whether orphaned items should be addressed before or alongside planned WOs — especially if they represent missing infrastructure that current work depends on.
+
 If no Work Ledger exists or no specs are frozen, check the Gap Tracker (`Specs/gap_tracker.md`) for non-WO work items. If neither exists, skip to Step 8 (Escalate) with "No work found — no frozen specs, no WOs, no gap tracker items."
 
 ---

@@ -47,6 +47,7 @@ Each gate has a concrete verification method. "No stubs" is unambiguous when bac
 | 5 | Clean build | Build command with stderr captured; grep for warnings | 0 warnings |
 | 6 | Performance met | Run perf test suite; compare actual metrics to ES performance budgets | All within budget |
 | 7 | Integration verified | `/integration-logic <module>` | Verdict: WIRED |
+| 8 | Spec fidelity | `/critical-review <module>` — adversarial review of implementation vs spec | Verdict: FIDELITY: HIGH |
 
 ### Stub Detection Patterns (Gate 1 — expanded)
 
@@ -70,4 +71,4 @@ The following patterns indicate incomplete implementation. ALL must return 0 res
 
 ## How to Invoke
 
-Run `/module-complete <module>` to verify all gates (Gates 1-7) against a specific module. The skill will check each gate and report pass/fail.
+Run `/critical-review <module>` first (spec fidelity — Gate 8), then `/module-complete <module>` to verify all gates (Gates 1-8) against a specific module. `/module-complete` will FAIL if `/critical-review` has not been run or did not reach FIDELITY: HIGH.

@@ -12,8 +12,9 @@
 ## Work Order → DONE
 
 - [ ] All acceptance criteria met (GIVEN/WHEN/THEN — each verified and recorded)
+- [ ] `/critical-review` FIDELITY: HIGH (spec fidelity verified — required before /module-complete)
 - [ ] `/code-review` PASS (output recorded in WO Validation Evidence)
-- [ ] `/module-complete` 7/7 gates (if this WO completes a module)
+- [ ] `/module-complete` 8/8 gates (if this WO completes a module)
 - [ ] `/integration-logic` WIRED (if this is an INTEGRATION task)
 - [ ] All tests passing (unit + E2E if applicable)
 - [ ] Validation Evidence section fully completed in WO file (actual output, not just "PASS")
@@ -24,7 +25,8 @@
 ## Module → Complete
 
 - [ ] All WOs for this module have status DONE
-- [ ] 7 quality gates passed (`/module-complete` output clean)
+- [ ] `/critical-review` FIDELITY: HIGH — adversarial spec fidelity review passed
+- [ ] 8 quality gates passed (`/module-complete` output clean)
   - Gate 1: No stubs (`grep -rn` returns 0 results for stub patterns)
   - Gate 2: Tests exist for all public methods (coverage >= module target in ES)
   - Gate 3: No TODO/FIXME/HACK/XXX in source (all deferred to Gap Tracker)
@@ -32,6 +34,7 @@
   - Gate 5: Clean build (0 warnings)
   - Gate 6: Performance budget met (actual vs ES target)
   - Gate 7: Integration verified (WIRED via `/integration-logic`)
+  - Gate 8: Spec fidelity verified (FIDELITY: HIGH via `/critical-review`)
 - [ ] Entry points verified (if module has external triggers per ES):
   - Handler registration confirmed via grep of bootstrap/entry point
   - Transport-level happy path test exists and passes
@@ -54,6 +57,7 @@
 - [ ] All INTEGRATION-type tasks report WIRED
 - [ ] Wave's E2E_VALIDATION capstone task passed
 - [ ] `/trace-check` reports CLEAN (no orphans, no gaps, no broken chains)
+- [ ] `/deferred-audit` CLEAN — no orphaned deferred items from prior specs. If orphans exist: **BLOCKED.** Nathan must either approve proceeding or direct that orphans be addressed first.
 - [ ] Gap Tracker: Tier 0 empty, Tier 1 empty
 - [ ] Gap Tracker: Any Tier 2 items explicitly deferred with Decision Record entry
 - [ ] `/wave-complete <wave-number>` reports PASS
@@ -63,6 +67,7 @@
 
 - [ ] All Blueprint waves complete (Wave 0 through Final Wave)
 - [ ] All PVD features complete (`/feature-complete` for each)
+- [ ] `/deferred-audit` CLEAN — zero orphaned deferred items across all specs
 - [ ] Gap Tracker: Tier 0 empty, Tier 1 empty, Tier 2 empty
 - [ ] All performance budgets met across all modules
 - [ ] Security review complete (`/security-review` for sensitive modules)

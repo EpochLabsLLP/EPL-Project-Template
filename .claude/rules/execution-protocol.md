@@ -19,6 +19,7 @@ These checkpoints run automatically. You do not invoke them — they invoke them
 | Checkpoint | When | What Runs | Enforcement |
 |-----------|------|-----------|-------------|
 | **Session Start** | Every new/resumed session | `validate_traceability.py` auto-refreshes Work Ledger | Informational (displays fresh status) |
+| **Deferred Audit** | Every new/resumed session | `scan_deferred.py` checks for orphaned deferred items | Informational (surfaces orphan count) |
 | **Code Write** | Every Edit/Write to code directories | `spec-gate.sh` checks frozen specs + active WO | **BLOCKS** if specs missing or no active WO |
 | **Git Commit** | Every `git commit` | `commit-gate.sh` validates traceability + scans for secrets | **BLOCKS** on broken chains or secrets |
 | **Package Install** | Every `npm/pip/cargo/go install` | `dep-gate.sh` checks for /dep-check | **BLOCKS** until dependency is vetted |
@@ -69,19 +70,20 @@ These are not auto-enforced by hooks but are REQUIRED by project governance. Ski
 
 ### After Implementation
 
-7. **Run `/code-review <module>`** — Post-implementation quality review. Required before module-complete.
-8. **Run `/module-complete <module>`** — Verify all 7 quality gates pass. Required before marking WO as DONE.
-8b. **If INTEGRATION task: Run `/integration-logic <module-a> <module-b>`** — Verify the wiring is complete. Include the verdict (WIRED/PARTIAL/BROKEN) in the Work Order validation notes.
-9. **Update WO status** — Set to VALIDATION (if awaiting review) or DONE (if all gates pass).
-10. **Run `/trace-check`** — Verify traceability chains are intact after changes. (Also runs automatically at session start and before commits.)
+7. **Run `/critical-review <module>`** — Adversarial spec fidelity review. Re-read the spec and verify your implementation actually delivers everything it describes, completely, not just structurally. Must reach FIDELITY: HIGH before proceeding. This is not optional. This is the gate that prevents hollow implementations from passing automated checks.
+8. **Run `/code-review <module>`** — Post-implementation code quality review. Required before module-complete.
+9. **Run `/module-complete <module>`** — Verify all 8 quality gates pass (including spec fidelity from critical-review). Required before marking WO as DONE.
+9b. **If INTEGRATION task: Run `/integration-logic <module-a> <module-b>`** — Verify the wiring is complete. Include the verdict (WIRED/PARTIAL/BROKEN) in the Work Order validation notes.
+10. **Update WO status** — Set to VALIDATION (if awaiting review) or DONE (if all gates pass).
+11. **Run `/trace-check`** — Verify traceability chains are intact after changes. (Also runs automatically at session start and before commits.)
 
 ### Commit After Each Work Order
 
-11. **When a WO reaches DONE, commit and push immediately.** Each WO is a self-contained unit of traceable work and a natural commit boundary. Do not batch multiple completed WOs into a single commit.
-12. **Commit message must reference the WO ID.** Format: `WO-N.M.T-X: <description of what was implemented>`. For INTEGRATION tasks, append the integration verdict: `WO-N.M.T-X: Wire ES-1.1 → ES-1.2 [WIRED]`. This ties the git history to the traceability chain.
-13. **Stage only files related to the WO.** Include the module source, tests, the WO file itself, and the updated Work Ledger. Do not stage unrelated changes.
-14. **Commit-gate runs automatically** — Validates traceability and scans for secrets.
-15. **Run `/pre-commit`** for full hygiene — The commit-gate covers traceability and secrets; `/pre-commit` also checks TODOs, debug statements, file hygiene, build, and tests.
+12. **When a WO reaches DONE, commit and push immediately.** Each WO is a self-contained unit of traceable work and a natural commit boundary. Do not batch multiple completed WOs into a single commit.
+13. **Commit message must reference the WO ID.** Format: `WO-N.M.T-X: <description of what was implemented>`. For INTEGRATION tasks, append the integration verdict: `WO-N.M.T-X: Wire ES-1.1 → ES-1.2 [WIRED]`. This ties the git history to the traceability chain.
+14. **Stage only files related to the WO.** Include the module source, tests, the WO file itself, and the updated Work Ledger. Do not stage unrelated changes.
+15. **Commit-gate runs automatically** — Validates traceability and scans for secrets.
+16. **Run `/pre-commit`** for full hygiene — The commit-gate covers traceability and secrets; `/pre-commit` also checks TODOs, debug statements, file hygiene, build, and tests.
 
 ## Wave Completion Gate
 

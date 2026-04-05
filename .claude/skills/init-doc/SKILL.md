@@ -94,7 +94,24 @@ Write the transformed content to `{Target Directory}/{Filename}`.
 
 Ensure the target directory exists (create if needed: `WorkOrders/` may not exist yet in a new project).
 
-### 7. Report
+### 7. Deferred Items Check (ES and BP only)
+
+If `TYPE` is `es` (Engineering Spec) or `bp` (Blueprint), run the deferred items scanner before reporting:
+
+```bash
+python "$CLAUDE_PROJECT_DIR/.claude/skills/deferred-audit/scripts/scan_deferred.py" "$CLAUDE_PROJECT_DIR" --quick
+```
+
+If orphaned items exist (exit code 1), display the output and add a warning:
+
+```
+[DEFERRED ITEMS WARNING] Orphaned items from prior specs were never picked up.
+Run /deferred-audit before scoping this document to ensure nothing is left behind.
+```
+
+This prevents the pattern of writing new phase specs that perpetuate gaps from prior phases. The agent creating a new Engineering Spec or Blueprint is scoping new work — this is the exact moment to surface unresolved commitments.
+
+### 8. Report
 
 Output to the user:
 

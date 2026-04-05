@@ -62,18 +62,34 @@ When invoked with a wave number ($ARGUMENTS):
 
 7. **Run `/trace-check --quick`** to verify traceability chains are intact.
 
-8. **Report:**
+8. **Check for orphaned deferred items** (carry-forward prevention):
+   ```bash
+   python "$CLAUDE_PROJECT_DIR/.claude/skills/deferred-audit/scripts/scan_deferred.py" "$CLAUDE_PROJECT_DIR" --quick
+   ```
+   - If orphaned items exist (exit code 1) → **FAIL**: "Orphaned deferred items from prior specs — BLOCKED. Nathan must approve proceeding or direct that orphans be addressed first. Run /deferred-audit for details."
+   - If clean (exit code 0) → PASS
+   - This is a **blocking gate**, not a warning. Orphaned deferred items represent broken commitments from prior phases. Nathan decides whether to proceed or address them.
+
+9. **Verify critical-review evidence for all modules in this wave.**
+   For each DONE WO in this wave:
+   - Check WO Validation Evidence for `/critical-review` verdict
+   - FAIL if any WO is missing critical-review evidence: "WO-{N.M.T}-{X} has no /critical-review verdict"
+   - FAIL if any critical-review verdict was not FIDELITY: HIGH: "WO-{N.M.T}-{X} critical-review verdict is GAPS FOUND — fix gaps before wave completion"
+
+10. **Report:**
 
    | Check | Status | Details |
    |-------|--------|---------|
    | WO existence | PASS/FAIL | {X/Y BP tasks have WOs} |
    | Tasks complete | PASS/FAIL | {X/Y WOs are DONE} |
    | Validation evidence | PASS/FAIL | {X/Y WOs have recorded evidence} |
+   | Critical review | PASS/FAIL | {X/Y WOs have FIDELITY: HIGH verdict} |
    | Integration verified | PASS/FAIL/N/A | {X/Y integration points WIRED with evidence} |
    | E2E capstone | PASS/FAIL/WARN | {capstone WO status} |
    | Gap Tracker tiers | PASS/FAIL/WARN | {Tier 0: N, Tier 1: N, Tier 2: N} |
    | Traceability | PASS/FAIL | {trace-check result} |
+   | Deferred items | PASS/FAIL | {N orphaned items — BLOCKED if > 0, requires Nathan's approval} |
 
-9. **Verdict:**
+11. **Verdict:**
    - **ALL PASS** → Wave $ARGUMENTS is COMPLETE. Proceed to next wave.
    - **ANY FAIL** → Wave $ARGUMENTS is NOT COMPLETE. List what must be resolved.

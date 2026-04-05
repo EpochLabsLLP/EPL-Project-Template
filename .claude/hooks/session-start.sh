@@ -16,6 +16,7 @@ WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 SESSIONS_DIR="$PROJECT_DIR/Sessions"
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
+DEFERRED_SCRIPT="$PROJECT_DIR/.claude/skills/deferred-audit/scripts/scan_deferred.py"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
 # --- Instance Identity (generate fresh ID for this session) ---
@@ -106,6 +107,16 @@ if [ -f "$GAP_TRACKER" ]; then
 else
   echo ""
   echo "[NO GAP TRACKER] Create Specs/gap_tracker.md to track work items by priority tier."
+fi
+
+# --- Deferred Items Audit (orphaned follow-up tasks from completed specs) ---
+if [ -f "$DEFERRED_SCRIPT" ]; then
+  DEFERRED_OUTPUT=$(PYTHONIOENCODING=utf-8 $PYTHON "$DEFERRED_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
+  DEFERRED_EXIT=$?
+  if [ $DEFERRED_EXIT -eq 1 ]; then
+    echo ""
+    echo "[$DEFERRED_OUTPUT]"
+  fi
 fi
 
 # --- Last Session Summary ---

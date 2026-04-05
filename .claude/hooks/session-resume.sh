@@ -13,6 +13,7 @@ PROJECT_DIR="${CLAUDE_PROJECT_DIR:-$(cd "$HOOK_DIR/../.." && pwd)}"
 WORK_LEDGER="$PROJECT_DIR/Specs/Work_Ledger.md"
 GAP_TRACKER="$PROJECT_DIR/Specs/gap_tracker.md"
 TRACE_SCRIPT="$PROJECT_DIR/.claude/skills/trace-check/scripts/validate_traceability.py"
+DEFERRED_SCRIPT="$PROJECT_DIR/.claude/skills/deferred-audit/scripts/scan_deferred.py"
 PYTHON=$(command -v python3 2>/dev/null || command -v python 2>/dev/null || echo python)
 
 # Read existing instance ID (don't regenerate on resume — same session)
@@ -72,6 +73,16 @@ if [ -f "$GAP_TRACKER" ]; then
   TIER0=$(sed -n '/## Tier 0/,/## Tier [1-9]/p' "$GAP_TRACKER" 2>/dev/null | grep -c "^- \[ \]")
   if [ "$TIER0" != "0" ] && [ "$TIER0" != "" ]; then
     echo "SCOPE GUARD: $TIER0 Tier 0 defect(s) open — resolve these first."
+  fi
+fi
+
+# --- Deferred Items Audit (orphaned follow-up tasks from completed specs) ---
+if [ -f "$DEFERRED_SCRIPT" ]; then
+  DEFERRED_OUTPUT=$(PYTHONIOENCODING=utf-8 $PYTHON "$DEFERRED_SCRIPT" "$PROJECT_DIR" --quick 2>&1)
+  DEFERRED_EXIT=$?
+  if [ $DEFERRED_EXIT -eq 1 ]; then
+    echo ""
+    echo "[$DEFERRED_OUTPUT]"
   fi
 fi
 

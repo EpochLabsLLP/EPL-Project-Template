@@ -62,8 +62,14 @@ These run automatically — you do not invoke them:
 - **Commit Gate:** Every `git commit` validates traceability chains and scans for secrets. Broken chains or secrets = BLOCKED. Enforced by `commit-gate.sh`.
 - **Dependency Gate:** Package installs (`npm install <pkg>`, `pip install <pkg>`, etc.) require prior `/dep-check`. Enforced by `dep-gate.sh`.
 - **Session Heartbeat:** Work Ledger auto-refreshes via `validate_traceability.py` on every session start, resume, and compaction recovery.
+- **Deferred Items Audit:** `scan_deferred.py` runs at every session start/resume/compact, surfacing orphaned follow-up tasks from completed specs. Orphaned items **block wave completion** — Nathan must approve proceeding or direct that they be addressed.
 - **Checkpoint/Resume:** Write `.claude/checkpoint.md` at WO lifecycle transitions (see Checkpoint Protocol in execution-protocol.md). Session hooks auto-inject this on crash/compact for context recovery.
 - **Observability:** All gate decisions emit events to `.claude/observability/events.jsonl`. Compliance metrics display at session start. Events are local and `.gitignored`.
+
+## Quality Gates & Definition of Done
+Before marking ANY module complete, run `/critical-review` (spec fidelity) then `/code-review` (code quality) then `/module-complete`. All gates in `/.claude/rules/quality-gates.md` must pass — now 8 gates, including Gate 8: Spec Fidelity via `/critical-review`.
+
+`/critical-review` is an adversarial self-review that forces you to re-read the spec section-by-section and verify your implementation delivers everything described — completely, not just structurally. It exists because agents routinely pass automated checks while producing hollow implementations. FIDELITY: HIGH is required before `/module-complete` will pass.
 
 See `/.claude/rules/execution-protocol.md` for the full mandatory workflow.
 
@@ -118,9 +124,6 @@ Additionally, a **global** MCP server (configured in `~/.claude.json`, available
 
 See `C:\Claude Folder\Memory\CLAUDE.md` for full schema reference and constraints.
 
-## Quality Gates & Definition of Done
-Before marking ANY module complete, run `/code-review` then `/module-complete`. All gates in `/.claude/rules/quality-gates.md` must pass.
-
 When unsure what "done" means at any level (WO, module, feature, wave, release), check `/.claude/rules/definition-of-done.md` — the single source of truth for completion criteria at every level.
 
 ## Claude Code Skills
@@ -129,6 +132,7 @@ Invoke with `/skill-name <args>`.
 | Skill | Invocation | When to Use |
 |-------|-----------|-------------|
 | spec-lookup | `/spec-lookup <module>` | Before working on any module |
+| critical-review | `/critical-review <module>` | After implementation — adversarial spec fidelity review (required before /module-complete) |
 | code-review | `/code-review <module\|file>` | After implementation, before marking complete |
 | alignment-check | `/alignment-check <module>` | Verify code matches spec with evidence |
 | dep-check | `/dep-check <dependency>` | Before adding any new dependency |
@@ -141,6 +145,7 @@ Invoke with `/skill-name <args>`.
 | init-doc | `/init-doc <type> [abbreviation]` | Creating any new spec document from template |
 | template-sync | `/template-sync [--apply]` | Syncing template updates to this project |
 | template-migrate | `/template-migrate [--dry-run]` | Migrating CLAUDE.md structure for legacy/major upgrades |
+| deferred-audit | `/deferred-audit` | Audit specs for orphaned follow-up/deferred items |
 | governance-health | `/governance-health` | Validating governance system integrity |
 | mail | `/mail <project> \| --check \| --ledger` | Cross-project messaging, inbox check, or mail action ledger |
 
