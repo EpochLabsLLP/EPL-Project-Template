@@ -164,6 +164,8 @@
         ".claude/skills/critical-review/SKILL.md",
         ".claude/skills/deferred-audit/SKILL.md",
         ".claude/skills/deferred-audit/scripts/scan_deferred.py",
+        ".claude/skills/prepare-work/SKILL.md",
+        ".claude/skills/prepare-work/scripts/extract_work_context.py",
         ".gitattributes",
         "template_sync.py",
         "TEMPLATE_MANIFEST.json",

@@ -141,6 +141,7 @@ Invoke with `/skill-name <args>`.
 | pre-commit | `/pre-commit` | Before every git commit |
 | module-complete | `/module-complete <module>` | Before marking any module done |
 | trace-check | `/trace-check` | After creating/updating any spec or Work Order |
+| prepare-work | `/prepare-work` | Pre-extract spec chains into per-task Work Context Documents before a wave |
 | work | `/work` | Autonomous work pickup — find and execute the next available WO |
 | init-doc | `/init-doc <type> [abbreviation]` | Creating any new spec document from template |
 | template-sync | `/template-sync [--apply]` | Syncing template updates to this project |

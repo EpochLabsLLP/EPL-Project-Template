@@ -58,32 +58,34 @@ These are not auto-enforced by hooks but are REQUIRED by project governance. Ski
 
 ### Before Implementation
 
-1. **Run `/spec-lookup <module>`** — Load the spec context for the module you're implementing.
-2. **Verify Work Order exists** — If no WO covers this work, create one with `/init-doc wo`.
-3. **Set WO status to IN-PROGRESS** — The code-gate will block code writes otherwise.
+1. **Read the upstream PVD** (not just the ES/BP) — Understand the *intent* behind the requirements, not just the requirements themselves. Engineering Specs describe *what* to build; the PVD describes *why* and for *whom*. If you skip this, you will build structurally correct code that misses the point.
+2. **Check for a Work Context Document** — If `WorkContexts/{BP-id}_context.md` exists (from `/prepare-work`), read it. It contains the pre-extracted spec chain for this task. If it doesn't exist, run `/spec-lookup <module>` to load context.
+3. **Verify Work Order exists** — If no WO covers this work, create one with `/init-doc wo`.
+4. **Set WO status to IN-PROGRESS** — The code-gate will block code writes otherwise.
 
 ### During Implementation
 
-4. **Follow the Problem-Solving Protocol** — Tiers 1→4, max 3 actions per tier (see problem-solving.md).
-5. **No stubs, no TODOs** — Every method must contain real logic. Defer incomplete work to the Gap Tracker.
-6. **Run `/dep-check <pkg>`** before adding any dependency — The dep-gate will block installs otherwise.
+5. **Follow the Problem-Solving Protocol** — Tiers 1→4, max 3 actions per tier (see problem-solving.md).
+6. **No stubs, no TODOs** — Every method must contain real logic. Defer incomplete work to the Gap Tracker.
+7. **No silent deferral** — If you do not implement a spec requirement, you MUST either add it to the Gap Tracker or get a Decision Record entry. Silently dropping requirements — building the infrastructure but not the behavior, matching the spec's nouns but not its verbs — is a governance violation. "Compiles and tests pass" is a prerequisite, not evidence of completion.
+8. **Run `/dep-check <pkg>`** before adding any dependency — The dep-gate will block installs otherwise.
 
 ### After Implementation
 
-7. **Run `/critical-review <module>`** — Adversarial spec fidelity review. Re-read the spec and verify your implementation actually delivers everything it describes, completely, not just structurally. Must reach FIDELITY: HIGH before proceeding. This is not optional. This is the gate that prevents hollow implementations from passing automated checks.
-8. **Run `/code-review <module>`** — Post-implementation code quality review. Required before module-complete.
-9. **Run `/module-complete <module>`** — Verify all 8 quality gates pass (including spec fidelity from critical-review). Required before marking WO as DONE.
-9b. **If INTEGRATION task: Run `/integration-logic <module-a> <module-b>`** — Verify the wiring is complete. Include the verdict (WIRED/PARTIAL/BROKEN) in the Work Order validation notes.
-10. **Update WO status** — Set to VALIDATION (if awaiting review) or DONE (if all gates pass).
-11. **Run `/trace-check`** — Verify traceability chains are intact after changes. (Also runs automatically at session start and before commits.)
+9. **Run `/critical-review <module>`** — Adversarial spec fidelity review. Re-read the spec and verify your implementation actually delivers everything it describes, completely, not just structurally. Must reach FIDELITY: HIGH before proceeding. This is not optional. This is the gate that prevents hollow implementations from passing automated checks.
+10. **Run `/code-review <module>`** — Post-implementation code quality review. Required before module-complete.
+11. **Run `/module-complete <module>`** — Verify all 8 quality gates pass (including spec fidelity from critical-review). Required before marking WO as DONE.
+11b. **If INTEGRATION task: Run `/integration-logic <module-a> <module-b>`** — Verify the wiring is complete. Include the verdict (WIRED/PARTIAL/BROKEN) in the Work Order validation notes.
+12. **Update WO status** — Set to VALIDATION (if awaiting review) or DONE (if all gates pass).
+13. **Run `/trace-check`** — Verify traceability chains are intact after changes. (Also runs automatically at session start and before commits.)
 
 ### Commit After Each Work Order
 
-12. **When a WO reaches DONE, commit and push immediately.** Each WO is a self-contained unit of traceable work and a natural commit boundary. Do not batch multiple completed WOs into a single commit.
-13. **Commit message must reference the WO ID.** Format: `WO-N.M.T-X: <description of what was implemented>`. For INTEGRATION tasks, append the integration verdict: `WO-N.M.T-X: Wire ES-1.1 → ES-1.2 [WIRED]`. This ties the git history to the traceability chain.
-14. **Stage only files related to the WO.** Include the module source, tests, the WO file itself, and the updated Work Ledger. Do not stage unrelated changes.
-15. **Commit-gate runs automatically** — Validates traceability and scans for secrets.
-16. **Run `/pre-commit`** for full hygiene — The commit-gate covers traceability and secrets; `/pre-commit` also checks TODOs, debug statements, file hygiene, build, and tests.
+14. **When a WO reaches DONE, commit and push immediately.** Each WO is a self-contained unit of traceable work and a natural commit boundary. Do not batch multiple completed WOs into a single commit.
+15. **Commit message must reference the WO ID.** Format: `WO-N.M.T-X: <description of what was implemented>`. For INTEGRATION tasks, append the integration verdict: `WO-N.M.T-X: Wire ES-1.1 → ES-1.2 [WIRED]`. This ties the git history to the traceability chain.
+16. **Stage only files related to the WO.** Include the module source, tests, the WO file itself, and the updated Work Ledger. Do not stage unrelated changes.
+17. **Commit-gate runs automatically** — Validates traceability and scans for secrets.
+18. **Run `/pre-commit`** for full hygiene — The commit-gate covers traceability and secrets; `/pre-commit` also checks TODOs, debug statements, file hygiene, build, and tests.
 
 ## Wave Completion Gate
 
